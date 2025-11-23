@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Antomani Weight - Calcul Personnalisé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 5px;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 10px 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            min-height: 44px;
+            text-align: center;
+        }
+
+        .nav-tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Profile Setup */
+        .profile-setup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .profile-complete {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .profile-item {
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .profile-value {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .stats-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 8px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .stats-label {
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+
+        .stats-value {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        /* Points Display */
+        .points-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .points-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .points-main {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .points-remaining {
+            text-align: right;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+        }
+
+        /* Weekly Points Section */
+        .weekly-points-section {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .weekly-points-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .weekly-points-main {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .weekly-points-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .weekly-points-actions .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .weekly-reset-info {
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* Form Styles */
+        .form-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #2d3436;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            min-height: 36px;
+            -webkit-appearance: none;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-toggle {
+            background: #e9ecef;
+            color: #495057;
+            margin: 5px;
+            min-width: auto;
+            padding: 8px 16px;
+        }
+
+        .btn-toggle.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Search and Food */
+        .search-section {
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .food-grid {
+            display: grid;
+            gap: 8px;
+            max-height: 60vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s;
+            min-height: 60px;
+        }
+
+        .food-item:active {
+            transform: scale(0.98);
+            background: #e9ecef;
+        }
+
+        .food-icon {
+            font-size: 1.5rem;
+            min-width: 30px;
+        }
+
+        .food-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .food-name {
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .food-category {
+            font-size: 0.75rem;
+            color: #636e72;
+            text-transform: capitalize;
+        }
+
+        .food-points {
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            background: #3498db;
+        }
+
+        .food-points.points-zero {
+            background: #27ae60 !important;
+        }
+
+        .food-item .food-points.points-high {
+            background: #e74c3c !important;
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+            min-width: 70px;
+        }
+
+        .btn-remove {
+            background: #e53e3e;
+            color: white;
+            min-width: 30px;
+            padding: 8px;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 5px 0;
+        }
+
+        .category-btn {
+            padding: 6px 12px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Consumed Foods */
+        .consumed-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .consumed-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            min-height: 50px;
+        }
+
+        /* Activity Section */
+        .activity-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* History Styles */
+        .week-selector {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .week-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .week-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .current-week {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .day-cards {
+            display: grid;
+            gap: 10px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .day-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .day-card.today {
+            border-color: #56ab2f;
+            background: linear-gradient(135deg, rgba(86, 171, 47, 0.1) 0%, rgba(168, 230, 207, 0.1) 100%);
+        }
+
+        .day-card.no-data {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .day-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2d3436;
+        }
+
+        .day-date {
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+
+        .day-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .summary-item {
+            padding: 8px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .summary-value {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #667eea;
+        }
+
+        .summary-label {
+            font-size: 0.7rem;
+            color: #636e72;
+            margin-top: 2px;
+        }
+
+        .day-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .day-details.expanded {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 15px;
+        }
+
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #2d3436;
+        }
+
+        .detail-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 0.8rem;
+        }
+
+        .detail-item:not(:last-child) {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 90%;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .toggle-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 3px;
+        }
+
+        /* Data management buttons */
+        .data-management {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .data-management h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .data-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .data-actions .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        @media (max-width: 480px) {
+            .nav-tab {
+                font-size: 0.65rem;
+                padding: 8px 2px;
+            }
+            
+            .points-display {
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+            
+            .points-main {
+                font-size: 1.5rem;
+            }
+            
+            .food-item {
+                padding: 10px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .day-summary {
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+
+            .weekly-points-actions {
+                flex-direction: column;
+            }
+
+            .data-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Prevent zoom on input focus */
+        @media screen and (max-width: 480px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏋️‍♀️ Antomani Weight</h1>
+            <p>Calcul personnalisé - Suivi intelligent</p>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('profile')">👤 Profil</button>
+            <button class="nav-tab" onclick="showTab('tracker')">📊 Suivi</button>
+            <button class="nav-tab" onclick="showTab('activity')">🏃‍♂️ Sport</button>
+            <button class="nav-tab" onclick="showTab('history')">📅 Historique</button>
+        </nav>
+
+        <!-- Profile Tab -->
+        <div id="profile" class="tab-content active">
+            <div id="profileStatus" class="profile-setup">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <h3 id="profileTitle">🎯 Configuration de votre profil</h3>
+                    <p id="profileSubtitle">Personnalisez vos points selon votre métabolisme</p>
+                </div>
+                
+                <div id="profileStats" style="display: none;">
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div>IMC Actuel</div>
+                            <div class="profile-value" id="currentBMI">--</div>
+                        </div>
+                        <div class="profile-item">
+                            <div>IMC Objectif</div>
+                            <div class="profile-value" id="targetBMI">--</div>
+                        </div>
+                        <div class="profile-item">
+                            <div>Métabolisme</div>
+                            <div class="profile-value" id="bmrDisplay">-- kcal</div>
+                        </div>
+                        <div class="profile-item">
+                            <div>Points/Jour</div>
+                            <div class="profile-value" id="calculatedPoints">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode Toggle -->
+            <div class="toggle-section">
+                <button class="btn btn-toggle active" id="autoMode" onclick="toggleCalculationMode('auto')">
+                    🤖 Auto
+                </button>
+                <button class="btn btn-toggle" id="manualMode" onclick="toggleCalculationMode('manual')">
+                    ✋ Manuel
+                </button>
+            </div>
+
+            <!-- Auto Mode Form -->
+            <div id="autoModeForm">
+                <div class="form-section">
+                    <h3 class="section-title">👤 Informations personnelles</h3>
+                    
+                    <div class="form-group">
+                        <label for="userName">Nom complet</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Marie Dubois" oninput="calculatePoints()">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userAge">Âge (ans)</label>
+                            <input type="number" id="userAge" class="form-control" placeholder="28" min="15" max="100" oninput="calculatePoints()">
+                        </div>
+                        <div class="form-group">
+                            <label for="userGender">Sexe</label>
+                            <select id="userGender" class="form-control" onchange="calculatePoints()">
+                                <option value="">Choisir...</option>
+                                <option value="female">Femme</option>
+                                <option value="male">Homme</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">📏 Mensurations</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userHeight">Taille (cm)</label>
+                            <input type="number" id="userHeight" class="form-control" placeholder="165" min="140" max="220" oninput="calculatePoints()">
+                        </div>
+                        <div class="form-group">
+                            <label for="currentWeight">Poids actuel (kg)</label>
+                            <input type="number" id="currentWeight" class="form-control" placeholder="70" step="0.1" min="40" max="200" oninput="calculatePoints()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="targetWeight">Poids objectif (kg)</label>
+                            <input type="number" id="targetWeight" class="form-control" placeholder="65" step="0.1" min="40" max="200" oninput="calculatePoints()">
+                        </div>
+                        <div class="form-group">
+                            <label for="activityLevel">Niveau d'activité</label>
+                            <select id="activityLevel" class="form-control" onchange="calculatePoints()">
+                                <option value="">Choisir...</option>
+                                <option value="1.2">Sédentaire (bureau)</option>
+                                <option value="1.375">Peu actif (1-3 fois/semaine)</option>
+                                <option value="1.55">Modérément actif (3-5 fois/semaine)</option>
+                                <option value="1.725">Très actif (6-7 fois/semaine)</option>
+                                <option value="1.9">Extrêmement actif (2x/jour)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">🎯 Objectif de perte</h3>
+                    
+                    <div class="form-group">
+                        <label for="weightLossGoal">Perte hebdomadaire souhaitée</label>
+                        <select id="weightLossGoal" class="form-control" onchange="calculatePoints()">
+                            <option value="">Choisir...</option>
+                            <option value="0.25">0.25 kg/semaine (lent)</option>
+                            <option value="0.5">0.5 kg/semaine (modéré)</option>
+                            <option value="0.75">0.75 kg/semaine (rapide)</option>
+                            <option value="1">1 kg/semaine (très rapide)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Calculation Results -->
+                <div id="calculationResults" style="display: none;">
+                    <div class="stats-card">
+                        <div class="stats-row">
+                            <span class="stats-label">Métabolisme de base (BMR)</span>
+                            <span class="stats-value" id="bmrResult">-- kcal/jour</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Dépense énergétique totale</span>
+                            <span class="stats-value" id="tdeeResult">-- kcal/jour</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Déficit calorique nécessaire</span>
+                            <span class="stats-value" id="deficitResult">-- kcal/jour</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Calories cibles par jour</span>
+                            <span class="stats-value" id="targetCaloriesResult">-- kcal/jour</span>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success" id="pointsCalculation">
+                        <strong>🎯 Points calculés : <span id="finalPoints">--</span> points/jour</strong>
+                        <div style="margin-top: 8px; font-size: 0.8rem;" id="calculationExplanation"></div>
+                    </div>
+
+                    <div class="alert alert-info" id="genderRangeInfo" style="display: none;">
+                        <div id="genderRangeText"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Mode Form -->
+            <div id="manualModeForm" style="display: none;">
+                <div class="form-section">
+                    <h3 class="section-title">✋ Configuration manuelle</h3>
+                    
+                    <div class="form-group">
+                        <label for="manualPoints">Points quotidiens souhaités</label>
+                        <input type="number" id="manualPoints" class="form-control" placeholder="25" min="20" max="50" oninput="updateManualPoints()">
+                        <small style="color: #636e72; font-size: 0.8rem;">
+                            Recommandé : 23-30 points pour les femmes, 30-40 pour les hommes
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveProfile()">
+                💾 Sauvegarder le profil
+            </button>
+
+            <!-- Data Management Section -->
+            <div class="data-management">
+                <h3>📊 Gestion des données</h3>
+                <div class="data-actions">
+                    <button class="btn btn-success" onclick="exportData()">📤 Exporter</button>
+                    <button class="btn btn-warning" onclick="importData()">📥 Importer</button>
+                    <button class="btn btn-danger" onclick="resetAllData()">🗑️ Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracker Tab -->
+        <div id="tracker" class="tab-content">
+            <!-- Points Header -->
+            <div class="points-header">
+                <div class="points-display">
+                    <div>
+                        <div class="points-main" id="dailyPointsDisplay">0 / 25</div>
+                        <div>Points utilisés</div>
+                    </div>
+                    <div class="points-remaining">
+                        <div style="font-size: 1.2rem; font-weight: bold;" id="remainingPointsDisplay">25</div>
+                        <div>Points restants</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.8rem; text-align: center;">
+                    <span>Base: <span id="basePointsDisplay">25</span> pts</span> |
+                    <span>Sport: +<span id="activityPointsDisplay">0</span> pts</span> |
+                    <span>Écarts: +<span id="cheatPointsDisplay">0</span> pts</span>
+                </div>
+            </div>
+
+            <!-- Weekly Points Section -->
+            <div class="weekly-points-section">
+                <div class="weekly-points-display">
+                    <div>
+                        <div class="weekly-points-main" id="weeklyPointsDisplay">0</div>
+                        <div>Points écarts disponibles</div>
+                    </div>
+                </div>
+                <div class="weekly-points-actions">
+                    <button class="btn btn-warning" onclick="useWeeklyPoints()">
+                        🍕 Utiliser écarts
+                    </button>
+                    <button class="btn btn-success" onclick="saveRemainingPoints()">
+                        💰 Économiser restants
+                    </button>
+                </div>
+                <div class="weekly-reset-info">
+                    Remise à zéro tous les lundis • Prochain reset: <span id="nextResetDate">--</span>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+    <input type="text" id="foodSearch" class="search-input" placeholder="🔍 Rechercher..." oninput="filterFoods()">
+</div>
+
+<!-- Add Custom Food Button -->
+<div style="margin-bottom: 15px;">
+    <button class="btn btn-primary" onclick="showCustomFoodModal()" style="width: 100%;">
+        ➕ Ajouter un aliment personnalisé
+    </button>
+</div>
+
+            <!-- Category Filter -->
+            <div class="category-filter">
+                <button class="category-btn active" onclick="filterByCategory('all')">Tout</button>
+                <button class="category-btn" onclick="filterByCategory('fruits')">🍎 Fruits</button>
+                <button class="category-btn" onclick="filterByCategory('legumes')">🥗 Légumes</button>
+                <button class="category-btn" onclick="filterByCategory('proteines')">🥩 Protéines</button>
+                <button class="category-btn" onclick="filterByCategory('laitier')">🥛 Laitier</button>
+                <button class="category-btn" onclick="filterByCategory('cereales')">🌾 Céréales</button>
+                <button class="category-btn" onclick="filterByCategory('charcuterie')">🥓 Charcuterie</button>
+                <button class="category-btn" onclick="filterByCategory('fast_food')">🍔 Fast Food</button>
+                <button class="category-btn" onclick="filterByCategory('street_food')">🥙 Street Food</button>
+                <button class="category-btn" onclick="filterByCategory('plats_cuisines')">🍲 Plats</button>
+                <button class="category-btn" onclick="filterByCategory('desserts')">🍨 Desserts</button>
+                <button class="category-btn" onclick="filterByCategory('supplements')">💪 Suppléments</button>
+                <button class="category-btn" onclick="filterByCategory('sauces')">🥄 Sauces</button>
+                <button class="category-btn" onclick="filterByCategory('plaisir')">🍫 Plaisir</button>
+                <button class="category-btn" onclick="filterByCategory('boissons')">🥤 Boissons</button>
+            </div>
+
+            <!-- Food Grid -->
+            <div class="food-grid" id="foodGrid"></div>
+
+            <!-- Consumed Foods -->
+            <div class="consumed-section" id="consumedSection" style="display: none;">
+                <h3>🍽️ Consommé aujourd'hui</h3>
+                <div id="consumedFoods"></div>
+                <div style="text-align: center; margin-top: 12px; padding: 8px; background: white; border-radius: 8px;">
+                    <strong>Total: <span id="totalPointsConsumed">0</span> points</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Tab -->
+        <div id="activity" class="tab-content">
+            <!-- Cumulative Calories Section -->
+            <div class="activity-form">
+                <h3>🔥 Calories cumulatives</h3>
+                
+                <div class="form-group">
+                    <label for="caloriesInput">Calories brûlées</label>
+                    <input type="number" id="caloriesInput" class="form-control" placeholder="250" oninput="updateCaloriesPoints()">
+                    <small style="color: #636e72; font-size: 0.8rem;">
+                        Total accumulé: <span id="totalCaloriesDisplay">0</span> calories
+                        (Points: <span id="totalCaloriesPoints">0</span>)
+                    </small>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addCaloriesActivity()">
+                    Ajouter calories (+<span id="caloriesPoints">0</span> pts)
+                </button>
+            </div>
+
+            <!-- Cumulative Steps Section -->
+            <div class="activity-form">
+                <h3>🚶‍♂️ Pas cumulatifs</h3>
+                
+                <div class="form-group">
+                    <label for="stepsInput">Nombre de pas</label>
+                    <input type="number" id="stepsInput" class="form-control" placeholder="10000" oninput="updateStepsPoints()">
+                    <small style="color: #636e72; font-size: 0.8rem;">
+                        Total accumulé: <span id="totalStepsDisplay">0</span> pas
+                        (Points: <span id="totalStepsPoints">0</span>)
+                    </small>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addStepsActivity()">
+                    Ajouter pas (+<span id="stepsPoints">0</span> pts)
+                </button>
+            </div>
+
+            <!-- Activities List -->
+            <div id="activitiesSection" style="display: none;">
+                <h3>✅ Activités d'aujourd'hui</h3>
+                <div id="activitiesList"></div>
+                
+                <div style="text-align: center; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); color: white; border-radius: 10px;">
+                    <div style="font-size: 1.5rem; font-weight: bold;">+<span id="totalActivityPoints">0</span></div>
+                    <div>Points gagnés</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="week-selector">
+                <div class="week-nav">
+                    <button onclick="changeWeek(-1)">← Semaine précédente</button>
+                    <div class="current-week" id="currentWeekDisplay">Semaine du ...</div>
+                    <button onclick="changeWeek(1)">Semaine suivante →</button>
+                </div>
+            </div>
+
+            <div class="day-cards" id="dayCards">
+                <!-- Les cartes des jours seront générées dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast for notifications -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Global variables
+        let userData = {};
+        let consumedFoods = [];
+        let activities = [];
+        let currentCategory = 'all';
+        
+        // Variables pour le cumul des activités
+        let totalCalories = 0;
+        let totalSteps = 0;
+
+        // Variables pour l'historique
+        let currentWeekOffset = 0;
+        let historyData = {};
+
+        // Variables pour les points écarts hebdomadaires
+        let weeklyExtraPoints = 0;
+        let currentWeekKey = '';
+        let usedWeeklyPoints = 0;
+
+        // LocalStorage keys
+        const STORAGE_KEY = 'antomaniWeightData';
+        const BACKUP_KEY = 'antomaniWeightBackup';
+
+        // Food database with comprehensive French foods
+        const foodDatabase = [
+            // Fruits
+            { name: "Pomme (1 moyenne)", category: "fruits", icon: "🍎", points: 0 },
+            { name: "Banane (1 moyenne)", category: "fruits", icon: "🍌", points: 0 },
+            { name: "Orange (1 moyenne)", category: "fruits", icon: "🍊", points: 0 },
+            { name: "Poire (1 moyenne)", category: "fruits", icon: "🍐", points: 0 },
+            { name: "Fraises (100g)", category: "fruits", icon: "🍓", points: 0 },
+            { name: "Fraises (200g)", category: "fruits", icon: "🍓", points: 1 },
+            { name: "Raisins (100g)", category: "fruits", icon: "🍇", points: 0 },
+            { name: "Raisins (200g)", category: "fruits", icon: "🍇", points: 1 },
+            { name: "Kiwi (1 moyen)", category: "fruits", icon: "🥝", points: 0 },
+            { name: "Ananas (1 tranche)", category: "fruits", icon: "🍍", points: 0 },
+            { name: "Mangue (1/2)", category: "fruits", icon: "🥭", points: 0 },
+            { name: "Pêche (1 moyenne)", category: "fruits", icon: "🍑", points: 0 },
+            { name: "Abricot (3 unités)", category: "fruits", icon: "🍑", points: 1 },
+            { name: "Melon (200g)", category: "fruits", icon: "🍈", points: 1 },
+            { name: "Pastèque (200g)", category: "fruits", icon: "🍉", points: 1 },
+            { name: "Cerises (125g)", category: "fruits", icon: "🍒", points: 2 },
+            { name: "Prunes (3 unités)", category: "fruits", icon: "🍇", points: 2 },
+            { name: "Myrtilles (125g)", category: "fruits", icon: "🫐", points: 2 },
+            { name: "Avocat (1/4)", category: "fruits", icon: "🥑", points: 2 },
+            { name: "Avocat (1/2)", category: "fruits", icon: "🥑", points: 3 },
+            { name: "Avocat (1 entier)", category: "fruits", icon: "🥑", points: 6 },
+            { name: "Noix de coco (30g)", category: "fruits", icon: "🥥", points: 4 },
+            { name: "Framboises (125g)", category: "fruits", icon: "🍓", points: 1 },
+            { name: "Citron (1 unité)", category: "fruits", icon: "🍋", points: 0 },
+            { name: "Pamplemousse (1/2 unité)", category: "fruits", icon: "🍊", points: 1 },
+            { name: "Figues fraîches (3 unités)", category: "fruits", icon: "🍇", points: 2 },
+            { name: "Figues sèches (3 unités)", category: "fruits", icon: "🍇", points: 4 },
+            { name: "Dattes fraîches (3 unités)", category: "fruits", icon: "🍯", points: 3 },
+            { name: "Dattes Medjool (2 unités)", category: "fruits", icon: "🍯", points: 4 },
+            { name: "Raisins secs (30g)", category: "fruits", icon: "🍇", points: 3 },
+            { name: "Cranberries séchées (30g)", category: "fruits", icon: "🍒", points: 3 },
+            { name: "Pruneaux (4 unités)", category: "fruits", icon: "🍇", points: 3 },
+            { name: "Abricots secs (6 unités)", category: "fruits", icon: "🍑", points: 3 },
+            
+            // Légumes
+            { name: "Brocolis (250g)", category: "legumes", icon: "🥦", points: 0 },
+            { name: "Épinards (250g)", category: "legumes", icon: "🥬", points: 0 },
+            { name: "Haricots verts (250g)", category: "legumes", icon: "🫘", points: 0 },
+            { name: "Courgettes (250g)", category: "legumes", icon: "🥒", points: 0 },
+            { name: "Tomates (100g)", category: "legumes", icon: "🍅", points: 0 },
+            { name: "Tomates (250g)", category: "legumes", icon: "🍅", points: 1 },
+            { name: "Carottes (100g)", category: "legumes", icon: "🥕", points: 0 },
+            { name: "Carottes (250g)", category: "legumes", icon: "🥕", points: 1 },
+            { name: "Salade verte (250g)", category: "legumes", icon: "🥗", points: 0 },
+            { name: "Concombre (250g)", category: "legumes", icon: "🥒", points: 0 },
+            { name: "Poivrons (250g)", category: "legumes", icon: "🫑", points: 1 },
+            { name: "Aubergines (250g)", category: "legumes", icon: "🍆", points: 1 },
+            { name: "Champignons (250g)", category: "legumes", icon: "🍄", points: 0 },
+            { name: "Radis (250g)", category: "legumes", icon: "🥕", points: 0 },
+            { name: "Betteraves (200g)", category: "legumes", icon: "🥕", points: 2 },
+            { name: "Chou-fleur (250g)", category: "legumes", icon: "🥦", points: 0 },
+            { name: "Choux de Bruxelles (250g)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Endives (250g)", category: "legumes", icon: "🥬", points: 0 },
+            { name: "Mâche (250g)", category: "legumes", icon: "🥬", points: 0 },
+            { name: "Roquette (250g)", category: "legumes", icon: "🥬", points: 0 },
+            { name: "Petits pois (125g)", category: "legumes", icon: "🟢", points: 2 },
+            { name: "Artichaut (1 unité)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Asperges (200g)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Céleri branche (200g)", category: "legumes", icon: "🥬", points: 0 },
+            { name: "Céleri-rave (200g)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Navets (200g)", category: "legumes", icon: "🥕", points: 1 },
+            { name: "Panais (200g)", category: "legumes", icon: "🥕", points: 2 },
+            { name: "Poireaux (200g)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Potiron (200g)", category: "legumes", icon: "🎃", points: 1 },
+            { name: "Butternut (200g)", category: "legumes", icon: "🎃", points: 2 },
+            { name: "Courge spaghetti (200g)", category: "legumes", icon: "🎃", points: 1 },
+            { name: "Choucroute (150g)", category: "legumes", icon: "🥬", points: 1 },
+            { name: "Soupe de légumes maison (250ml)", category: "legumes", icon: "🥄", points: 1 },
+            { name: "Velouté de châtaignes (250ml)", category: "legumes", icon: "🌰", points: 3 },
+            { name: "Soupe au pistou (250ml)", category: "legumes", icon: "🌿", points: 4 },
+            { name: "Potage parmentier (250ml)", category: "legumes", icon: "🥔", points: 2 },
+            { name: "Vichyssoise (250ml)", category: "legumes", icon: "🥔", points: 4 },
+            { name: "Soupe à l'oignon (250ml)", category: "legumes", icon: "🍲", points: 3 },
+            { name: "Gaspacho (250ml)", category: "legumes", icon: "🍅", points: 2 },
+            { name: "Velouté de champignons (250ml)", category: "legumes", icon: "🍄", points: 3 },
+            { name: "Soupe de potiron (250ml)", category: "legumes", icon: "🎃", points: 2 },
+            { name: "Minestrone (250ml)", category: "legumes", icon: "🍲", points: 4 },
+
+            // Protéines
+            { name: "Blanc de poulet (50g)", category: "proteines", icon: "🍗", points: 2 },
+            { name: "Blanc de poulet (100g)", category: "proteines", icon: "🐗", points: 4 },
+            { name: "Blanc de poulet (150g)", category: "proteines", icon: "🍗", points: 6 },
+            { name: "Cuisse de poulet (100g)", category: "proteines", icon: "🍗", points: 6 },
+            { name: "Dinde (100g)", category: "proteines", icon: "🦃", points: 4 },
+            { name: "Poisson blanc (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Saumon (50g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Saumon (100g)", category: "proteines", icon: "🍣", points: 5 },
+            { name: "Saumon (150g)", category: "proteines", icon: "🐟", points: 8 },
+            { name: "Thon au naturel (50g)", category: "proteines", icon: "🐟", points: 2 },
+            { name: "Thon au naturel (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Sardines (100g)", category: "proteines", icon: "🐟", points: 4 },
+            { name: "Maquereau (100g)", category: "proteines", icon: "🐟", points: 5 },
+            { name: "Cabillaud (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Sole (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Bœuf maigre (50g)", category: "proteines", icon: "🥩", points: 3 },
+            { name: "Bœuf maigre (100g)", category: "proteines", icon: "🥩", points: 6 },
+            { name: "Bœuf maigre (150g)", category: "proteines", icon: "🥩", points: 9 },
+            { name: "Côte de bœuf maigre (150g)", category: "proteines", icon: "🥩", points: 14 },
+            { name: "Bœuf haché 5% (100g)", category: "proteines", icon: "🥩", points: 5 },
+            { name: "Bœuf haché 15% (100g)", category: "proteines", icon: "🥩", points: 7 },
+            { name: "Porc filet (100g)", category: "proteines", icon: "🥩", points: 5 },
+            { name: "Côte de porc (100g)", category: "proteines", icon: "🥩", points: 8 },
+            { name: "Agneau (100g)", category: "proteines", icon: "🥩", points: 8 },
+            { name: "Veau (100g)", category: "proteines", icon: "🥩", points: 6 },
+            { name: "Œuf entier (1 unité)", category: "proteines", icon: "🥚", points: 0 },
+            { name: "Œufs entiers (2 unités)", category: "proteines", icon: "🥚", points: 0 },
+            { name: "Œufs entiers (3 unités)", category: "proteines", icon: "🥚", points: 1 },
+            { name: "Blancs d'œufs (3 unités)", category: "proteines", icon: "🥚", points: 0 },
+            { name: "Jaunes d'œufs (3 unités)", category: "proteines", icon: "🥚", points: 2 },
+            { name: "Crevettes (50g)", category: "proteines", icon: "🦐", points: 1 },
+            { name: "Crevettes (100g)", category: "proteines", icon: "🦐", points: 2 },
+            { name: "Crevettes (150g)", category: "proteines", icon: "🦐", points: 3 },
+            { name: "Moules (100g)", category: "proteines", icon: "🦪", points: 2 },
+            { name: "Saint-Jacques (100g)", category: "proteines", icon: "🦪", points: 3 },
+            { name: "Crabe (100g)", category: "proteines", icon: "🦀", points: 2 },
+            { name: "Homard (100g)", category: "proteines", icon: "🦞", points: 3 },
+            { name: "Gésiers de canard (100g)", category: "proteines", icon: "🦆", points: 4 },
+            { name: "Foie de volaille (100g)", category: "proteines", icon: "🐔", points: 5 },
+            { name: "Rognons (100g)", category: "proteines", icon: "🥩", points: 4 },
+            { name: "Langue de bœuf (100g)", category: "proteines", icon: "🥩", points: 7 },
+            { name: "Lapin (100g)", category: "proteines", icon: "🐰", points: 5 },
+            { name: "Pigeon (100g)", category: "proteines", icon: "🕊️", points: 6 },
+            { name: "Caille (1 unité)", category: "proteines", icon: "🐦", points: 8 },
+            { name: "Escargots (12 unités)", category: "proteines", icon: "🐌", points: 3 },
+            { name: "Cuisses de grenouille (6 unités)", category: "proteines", icon: "🐸", points: 2 },
+            { name: "Truite (100g)", category: "proteines", icon: "🐟", points: 4 },
+            { name: "Bar (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Dorade (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Turbot (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Lotte (100g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Rouget (100g)", category: "proteines", icon: "🐟", points: 4 },
+            { name: "Anchois (50g)", category: "proteines", icon: "🐟", points: 3 },
+            { name: "Hareng (100g)", category: "proteines", icon: "🐟", points: 6 },
+            { name: "Gésiers confits (100g)", category: "proteines", icon: "🦆", points: 5 },
+            { name: "Consommé de volaille (250ml)", category: "proteines", icon: "🐔", points: 1 },
+            { name: "Bouillabaisse marseillaise (350ml)", category: "proteines", icon: "🐟", points: 12 },
+
+            // Produits laitiers et fromages
+            { name: "Lait écrémé (250ml)", category: "laitier", icon: "🥛", points: 2 },
+            { name: "Lait demi-écrémé (250ml)", category: "laitier", icon: "🥛", points: 3 },
+            { name: "Lait entier (250ml)", category: "laitier", icon: "🥛", points: 4 },
+            { name: "Yaourt nature 0% (125g)", category: "laitier", icon: "🥛", points: 0 },
+            { name: "Yaourt nature (125g)", category: "laitier", icon: "🥛", points: 3 },
+            { name: "Fromage blanc 0% (125g)", category: "laitier", icon: "🥛", points: 0 },
+            { name: "Fromage blanc 20% (125g)", category: "laitier", icon: "🥛", points: 3 },
+            { name: "Fromage blanc 0% fruits (125g)", category: "desserts", icon: "🥛", points: 2 },
+            { name: "Compote sans sucre ajouté", category: "desserts", icon: "🍎", points: 1 },
+            { name: "Chia pudding (125g)", category: "desserts", icon: "🥄", points: 4 },
+            { name: "Tapioca au lait de coco", category: "desserts", icon: "🥥", points: 5 },
+            { name: "Riz au lait (125g)", category: "desserts", icon: "🍚", points: 5 },
+            { name: "Semoule au lait (125g)", category: "desserts", icon: "🥛", points: 5 },
+            { name: "Yaourt grec 0% (125g)", category: "laitier", icon: "🥛", points: 2 },
+            { name: "Yaourt grec (125g)", category: "laitier", icon: "🥛", points: 4 },
+            { name: "Petits-suisses (2 unités)", category: "laitier", icon: "🥛", points: 3 },
+            { name: "Emmental (15g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Emmental (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Emmental (50g)", category: "laitier", icon: "🧀", points: 5 },
+            { name: "Gruyère (15g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Gruyère (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Camembert (15g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Camembert (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Camembert (60g)", category: "laitier", icon: "🧀", points: 6 },
+            { name: "Brie (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Roquefort (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Chèvre frais (15g)", category: "laitier", icon: "🧀", points: 1 },
+            { name: "Chèvre frais (30g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Chèvre frais (60g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Chèvre sec (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Cheddar (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Mozzarella (30g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Mozzarella (60g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Feta (30g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Feta (60g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Parmesan (10g)", category: "laitier", icon: "🧀", points: 1 },
+            { name: "Parmesan (20g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Parmesan (40g)", category: "laitier", icon: "🧀", points: 5 },
+            { name: "Raclette (50g)", category: "laitier", icon: "🧀", points: 6 },
+            { name: "Comté (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Reblochon (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Bleu d'Auvergne (30g)", category: "laitier", icon: "🧀", points: 3 },
+            { name: "Boursin (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Mascarpone (30g)", category: "laitier", icon: "🧀", points: 5 },
+            { name: "Ricotta (50g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Cottage cheese (100g)", category: "laitier", icon: "🧀", points: 2 },
+            { name: "Philadelphia (30g)", category: "laitier", icon: "🧀", points: 4 },
+            { name: "Crème fraîche épaisse (30ml)", category: "laitier", icon: "🥛", points: 3 },
+            { name: "Crème fraîche liquide (30ml)", category: "laitier", icon: "🥛", points: 2 },
+            { name: "Crème allégée (30ml)", category: "laitier", icon: "🥛", points: 1 },
+            { name: "Beurre doux (10g)", category: "laitier", icon: "🧈", points: 2 },
+            { name: "Beurre salé (10g)", category: "laitier", icon: "🧈", points: 2 },
+            { name: "Beurre allégé (10g)", category: "laitier", icon: "🧈", points: 1 },
+
+            // Céréales et féculents
+            { name: "Riz blanc cuit (50g)", category: "cereales", icon: "🍚", points: 1 },
+            { name: "Riz blanc cuit (75g)", category: "cereales", icon: "🍚", points: 2 },
+            { name: "Riz blanc cuit (125g)", category: "cereales", icon: "🍚", points: 4 },
+            { name: "Riz blanc cuit (200g)", category: "cereales", icon: "🍚", points: 5 },
+            { name: "Riz complet cuit (50g)", category: "cereales", icon: "🍚", points: 1 },
+            { name: "Riz complet cuit (125g)", category: "cereales", icon: "🍚", points: 3 },
+            { name: "Riz complet cuit (200g)", category: "cereales", icon: "🍚", points: 5 },
+            { name: "Riz basmati cuit (125g)", category: "cereales", icon: "🍚", points: 3 },
+            { name: "Pâtes blanches cuites (50g)", category: "cereales", icon: "🍝", points: 1 },
+            { name: "Pâtes blanches cuites (75g)", category: "cereales", icon: "🍝", points: 2 },
+            { name: "Pâtes blanches cuites (125g)", category: "cereales", icon: "🍝", points: 4 },
+            { name: "Pâtes blanches cuites (200g)", category: "cereales", icon: "🍝", points: 5 },
+            { name: "Pâtes complètes cuites (125g)", category: "cereales", icon: "🍝", points: 3 },
+            { name: "Pommes de terre vapeur (100g)", category: "cereales", icon: "🥔", points: 2 },
+            { name: "Pommes de terre vapeur (200g)", category: "cereales", icon: "🥔", points: 3 },
+            { name: "Pommes de terre vapeur (300g)", category: "cereales", icon: "🥔", points: 5 },
+            { name: "Purée de pommes de terre (125g)", category: "cereales", icon: "🥔", points: 4 },
+            { name: "Frites (100g)", category: "cereales", icon: "🍟", points: 7 },
+            { name: "Pain blanc (30g)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Pain complet (30g)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Pain de mie (2 tranches)", category: "cereales", icon: "🍞", points: 3 },
+            { name: "Baguette (60g)", category: "cereales", icon: "🥖", points: 5 },
+            { name: "Biscottes (3 unités)", category: "cereales", icon: "🍞", points: 3 },
+            { name: "Céréales nature (30g)", category: "cereales", icon: "🥣", points: 3 },
+            { name: "Quinoa cuit (50g)", category: "cereales", icon: "🌾", points: 2 },
+            { name: "Quinoa cuit (125g)", category: "cereales", icon: "🌾", points: 5 },
+            { name: "Quinoa cuit (200g)", category: "cereales", icon: "🌾", points: 6 },
+            { name: "Boulgour cuit (75g)", category: "cereales", icon: "🌾", points: 2 },
+            { name: "Boulgour cuit (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Avoine (30g sec)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Muesli (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Lentilles cuites (125g)", category: "cereales", icon: "🫘", points: 3 },
+            { name: "Haricots blancs cuits (125g)", category: "cereales", icon: "🫘", points: 3 },
+            { name: "Pois chiches cuits (125g)", category: "cereales", icon: "🫘", points: 3 },
+            { name: "Polenta (125g)", category: "cereales", icon: "🌽", points: 3 },
+            { name: "Semoule cuite (75g)", category: "cereales", icon: "🌾", points: 2 },
+            { name: "Semoule cuite (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Pain de seigle (30g)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Pain aux céréales (30g)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Crackers (5 unités)", category: "cereales", icon: "🍞", points: 3 },
+            { name: "Galettes de riz (3 unités)", category: "cereales", icon: "🍚", points: 2 },
+            { name: "Corn flakes (30g)", category: "cereales", icon: "🥣", points: 3 },
+            { name: "All Bran (30g)", category: "cereales", icon: "🥣", points: 2 },
+            { name: "Orge perlé cuit (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Épeautre cuit (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Sarrasin cuit (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Patate douce (150g)", category: "cereales", icon: "🍠", points: 3 },
+            { name: "Igname (150g)", category: "cereales", icon: "🍠", points: 3 },
+            { name: "Tapioca cuit (125g)", category: "cereales", icon: "🌾", points: 3 },
+            { name: "Gnocchis (125g)", category: "cereales", icon: "🥔", points: 4 },
+            { name: "Röstis (1 portion)", category: "cereales", icon: "🥔", points: 6 },
+            { name: "Röstis (1/2 portion)", category: "cereales", icon: "🥔", points: 3 },
+            { name: "Pommes noisettes (100g)", category: "cereales", icon: "🥔", points: 5 },
+            { name: "Pommes noisettes (150g)", category: "cereales", icon: "🥔", points: 8 },
+            { name: "Pommes dauphine (100g)", category: "cereales", icon: "🥔", points: 6 },
+            { name: "Pommes duchesse (100g)", category: "cereales", icon: "🥔", points: 5 },
+            { name: "Pommes sautées (150g)", category: "cereales", icon: "🥔", points: 5 },
+            { name: "Pommes grenaille rôties (150g)", category: "cereales", icon: "🥔", points: 4 },
+            { name: "Wedges épicées (100g)", category: "cereales", icon: "🥔", points: 6 },
+            { name: "Pain pita (1 unité)", category: "cereales", icon: "🍞", points: 3 },
+            { name: "Pain naan (1 unité)", category: "cereales", icon: "🍞", points: 4 },
+            { name: "Pain bagel (1 unité)", category: "cereales", icon: "🥯", points: 5 },
+            { name: "Pain suédois (2 tranches)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Pain azyme (2 feuilles)", category: "cereales", icon: "🍞", points: 2 },
+            { name: "Wrap tortilla (1 unité)", category: "cereales", icon: "🌯", points: 3 },
+            { name: "Pain burger (1 unité)", category: "cereales", icon: "🍔", points: 3 },
+            { name: "Gressins (5 bâtons)", category: "cereales", icon: "🥖", points: 2 },
+
+
+            // Céréales petit-déjeuner supplémentaires  
+            { name: "Chocapic (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Nesquik cereales (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Frosties (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Cookie Crisp (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Lion cereales (30g)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Granola maison (30g)", category: "cereales", icon: "🥣", points: 5 },
+            { name: "Flocons d'avoine (30g)", category: "cereales", icon: "🥣", points: 3 },
+            { name: "Porridge avoine (portion)", category: "cereales", icon: "🥣", points: 4 },
+            { name: "Pancakes (2 unités)", category: "cereales", icon: "🥞", points: 6 },
+            { name: "Gaufre de Liège", category: "plaisir", icon: "🧇", points: 10 },
+            { name: "Confiture (1 c.s)", category: "plaisir", icon: "🍓", points: 1 },
+            { name: "Miel (1 c.s)", category: "plaisir", icon: "🍯", points: 2 },
+            { name: "Sirop d'érable (1 c.s)", category: "plaisir", icon: "🍁", points: 2 },
+            { name: "Pâte à tartiner (1 c.s)", category: "plaisir", icon: "🍫", points: 3 },
+            { name: "Beurre de cacahuète (1 c.s)", category: "plaisir", icon: "🥜", points: 3 },
+
+            // Charcuterie
+            { name: "Jambon blanc (50g)", category: "charcuterie", icon: "🥓", points: 2 },
+            { name: "Jambon de Bayonne (30g)", category: "charcuterie", icon: "🥓", points: 3 },
+            { name: "Jambon de Parme (30g)", category: "charcuterie", icon: "🥓", points: 3 },
+            { name: "Saucisson sec (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Chorizo (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Rillettes (30g)", category: "charcuterie", icon: "🥓", points: 5 },
+            { name: "Pâté de campagne (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Mortadelle (30g)", category: "charcuterie", icon: "🥓", points: 3 },
+            { name: "Bacon (20g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Lardons (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Boudin noir (50g)", category: "charcuterie", icon: "🥓", points: 5 },
+            { name: "Merguez (1 unité)", category: "charcuterie", icon: "🌭", points: 6 },
+            { name: "Saucisse de Toulouse (1 unité)", category: "charcuterie", icon: "🌭", points: 7 },
+            { name: "Andouillette (100g)", category: "charcuterie", icon: "🌭", points: 8 },
+            { name: "Bresaola (30g)", category: "charcuterie", icon: "🥓", points: 2 },
+            { name: "Coppa (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Rosette de Lyon (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Jambon de dinde (50g)", category: "charcuterie", icon: "🦃", points: 2 },
+            { name: "Knacki (2 unités)", category: "charcuterie", icon: "🌭", points: 5 },
+            { name: "Chipolata (2 unités)", category: "charcuterie", icon: "🌭", points: 6 },
+            { name: "Boudin blanc (50g)", category: "charcuterie", icon: "🥓", points: 6 },
+            { name: "Terrines diverses (30g)", category: "charcuterie", icon: "🥓", points: 4 },
+            { name: "Foie gras (20g)", category: "charcuterie", icon: "🦆", points: 6 },
+            { name: "Boudin aux pommes (80g)", category: "charcuterie", icon: "🍎", points: 7 },
+            
+            // Charcuterie grillée
+            { name: "Chorizo grillé (50g)", category: "charcuterie", icon: "🌶️", points: 6 },
+            { name: "Merguez grillée (1 unité)", category: "charcuterie", icon: "🌭", points: 7 },
+            { name: "Saucisse grillée (1 unité)", category: "charcuterie", icon: "🌭", points: 8 },
+            { name: "Chipolata grillée (2 unités)", category: "charcuterie", icon: "🌭", points: 7 },
+            { name: "Lardons grillés (40g)", category: "charcuterie", icon: "🥓", points: 5 },
+            { name: "Bacon grillé (30g)", category: "charcuterie", icon: "🥓", points: 5 },
+
+            // Fast Food élargi
+            { name: "Big Mac", category: "fast_food", icon: "🍔", points: 17 },
+            { name: "Royal Cheese", category: "fast_food", icon: "🍔", points: 15 },
+            { name: "McChicken", category: "fast_food", icon: "🍔", points: 13 },
+            { name: "Filet-O-Fish", category: "fast_food", icon: "🍔", points: 11 },
+            { name: "Double Cheeseburger", category: "fast_food", icon: "🍔", points: 13 },
+            { name: "Cheeseburger", category: "fast_food", icon: "🍔", points: 8 },
+            { name: "Hamburger", category: "fast_food", icon: "🍔", points: 7 },
+            { name: "Whopper Burger King", category: "fast_food", icon: "🍔", points: 16 },
+            { name: "Big King", category: "fast_food", icon: "🍔", points: 14 },
+            { name: "Chicken Royale", category: "fast_food", icon: "🍔", points: 13 },
+            { name: "Frites McDonalds (petite)", category: "fast_food", icon: "🍟", points: 6 },
+            { name: "Frites McDonalds (moyenne)", category: "fast_food", icon: "🍟", points: 9 },
+            { name: "Frites McDonalds (grande)", category: "fast_food", icon: "🍟", points: 12 },
+            { name: "Nuggets 4 pièces", category: "fast_food", icon: "🍗", points: 5 },
+            { name: "Nuggets 6 pièces", category: "fast_food", icon: "🍗", points: 8 },
+            { name: "Nuggets 9 pièces", category: "fast_food", icon: "🍗", points: 12 },
+            { name: "Nuggets 20 pièces", category: "fast_food", icon: "🍗", points: 26 },
+            { name: "McFlurry M&Ms", category: "fast_food", icon: "🍦", points: 14 },
+            { name: "McFlurry Oreo", category: "fast_food", icon: "🍦", points: 14 },
+            { name: "Sundae caramel", category: "fast_food", icon: "🍦", points: 9 },
+            { name: "Apple Pie McDonalds", category: "fast_food", icon: "🥧", points: 7 },
+            { name: "Muffin McDonalds", category: "fast_food", icon: "🧁", points: 9 },
+            { name: "McMuffin Egg & Bacon", category: "fast_food", icon: "🍔", points: 9 },
+            { name: "McWrap Poulet", category: "fast_food", icon: "🌯", points: 14 },
+            { name: "Salade César McDonalds", category: "fast_food", icon: "🥗", points: 8 },
+            { name: "Pizza Margherita (part)", category: "fast_food", icon: "🍕", points: 8 },
+            { name: "Pizza 4 fromages (part)", category: "fast_food", icon: "🍕", points: 9 },
+            { name: "Pizza Pepperoni (part)", category: "fast_food", icon: "🍕", points: 10 },
+            { name: "Pizza Calzone", category: "fast_food", icon: "🍕", points: 12 },
+            { name: "Pizza Hut Supreme (part)", category: "fast_food", icon: "🍕", points: 11 },
+            { name: "Pizza Hut Hawaïenne (part)", category: "fast_food", icon: "🍕", points: 9 },
+            { name: "Pizza Hut Cheesy Crust (part)", category: "fast_food", icon: "🍕", points: 12 },
+            { name: "Domino's Margherita (part)", category: "fast_food", icon: "🍕", points: 8 },
+            { name: "Domino's Extravaganza (part)", category: "fast_food", icon: "🍕", points: 11 },
+            { name: "Domino's BBQ Chicken (part)", category: "fast_food", icon: "🍕", points: 10 },
+            { name: "Domino's Cheese Bread", category: "fast_food", icon: "🍞", points: 8 },
+            { name: "Tacos 1 viande", category: "fast_food", icon: "🌮", points: 14 },
+            { name: "Tacos 2 viandes", category: "fast_food", icon: "🌮", points: 17 },
+            { name: "Tacos 3 viandes", category: "fast_food", icon: "🌮", points: 20 },
+            { name: "Kebab complet", category: "fast_food", icon: "🥙", points: 20 },
+            { name: "Kebab assiette", category: "fast_food", icon: "🥙", points: 22 },
+            { name: "Falafel sandwich", category: "street_food", icon: "🥙", points: 11 },
+            { name: "Subway 15cm poulet", category: "fast_food", icon: "🥪", points: 8 },
+            { name: "Subway 30cm poulet", category: "fast_food", icon: "🥪", points: 16 },
+            { name: "Subway 15cm thon", category: "fast_food", icon: "🥪", points: 10 },
+            { name: "Subway 30cm thon", category: "fast_food", icon: "🥪", points: 20 },
+            { name: "Subway 15cm végétarien", category: "fast_food", icon: "🥪", points: 6 },
+            { name: "Subway Cookie", category: "fast_food", icon: "🍪", points: 6 },  
+            { name: "KFC Tower Burger", category: "fast_food", icon: "🍔", points: 16 },
+            { name: "KFC Zinger", category: "fast_food", icon: "🍔", points: 15 },
+            { name: "KFC Bucket 6 pièces", category: "fast_food", icon: "🍗", points: 28 },
+            { name: "KFC Tenders (3 pièces)", category: "fast_food", icon: "🍗", points: 9 },
+            { name: "KFC Hot Wings (6 pièces)", category: "fast_food", icon: "🍗", points: 11 },
+            { name: "KFC Popcorn Chicken", category: "fast_food", icon: "🍗", points: 10 },
+            { name: "Onion Rings (6 pièces)", category: "fast_food", icon: "🧅", points: 7 },
+            { name: "Whopper", category: "fast_food", icon: "🍔", points: 18 },
+            { name: "Double Whopper", category: "fast_food", icon: "🍔", points: 26 },
+            { name: "Big King", category: "fast_food", icon: "🍔", points: 16 },
+            { name: "Chicken Royale", category: "fast_food", icon: "🍔", points: 15 },
+            { name: "Long Chicken", category: "fast_food", icon: "🍔", points: 14 },
+            { name: "Steakhouse", category: "fast_food", icon: "🍔", points: 20 },
+            { name: "King Wings (6 pièces)", category: "fast_food", icon: "🍗", points: 10 },
+            { name: "Onion Rings (6 pièces)", category: "fast_food", icon: "🧅", points: 9 },
+            { name: "King Fries (moyenne)", category: "fast_food", icon: "🍟", points: 10 },
+            { name: "Quick Giant", category: "fast_food", icon: "🍔", points: 16 },
+            { name: "Quick Cheese", category: "fast_food", icon: "🍔", points: 14 },
+            { name: "Quick'N Toast", category: "fast_food", icon: "🍔", points: 13 },
+            { name: "Starbucks Muffin", category: "fast_food", icon: "🧁", points: 11 },
+            { name: "Starbucks Cookie", category: "fast_food", icon: "🍪", points: 9 },
+
+            // Street Food élargi
+            { name: "Crêpe Nutella", category: "street_food", icon: "🥞", points: 12 },
+            { name: "Crêpe sucre", category: "street_food", icon: "🥞", points: 8 },
+            { name: "Crêpe beurre", category: "street_food", icon: "🥞", points: 6 },
+            { name: "Crêpe confiture", category: "street_food", icon: "🥞", points: 9 },
+            { name: "Galette complète", category: "street_food", icon: "🥞", points: 11 },
+            { name: "Galette jambon-fromage", category: "street_food", icon: "🥞", points: 9 },
+            { name: "Gaufre nature", category: "street_food", icon: "🧇", points: 6 },
+            { name: "Gaufre Nutella", category: "street_food", icon: "🧇", points: 10 },
+            { name: "Gaufre chantilly", category: "street_food", icon: "🧇", points: 9 },
+            { name: "Hot-dog", category: "street_food", icon: "🌭", points: 10 },
+            { name: "Hot-dog fromage", category: "street_food", icon: "🌭", points: 12 },
+            { name: "Sandwich jambon-beurre", category: "street_food", icon: "🥪", points: 8 },
+            { name: "Sandwich poulet-crudités", category: "street_food", icon: "🥪", points: 9 },
+            { name: "Panini jambon-fromage", category: "street_food", icon: "🥪", points: 10 },
+            { name: "Panini 3 fromages", category: "street_food", icon: "🥪", points: 12 },
+            { name: "Croque-monsieur", category: "street_food", icon: "🥪", points: 11 },
+            { name: "Croque-madame", category: "street_food", icon: "🥪", points: 13 },
+            { name: "Churros (5 pièces)", category: "street_food", icon: "🍩", points: 8 },
+            { name: "Beignet", category: "street_food", icon: "🍩", points: 6 },
+            { name: "Socca (part)", category: "street_food", icon: "🥞", points: 4 },
+            
+            // Plats cuisinés/maison considérablement élargis
+            { name: "Lasagnes bolognaise (portion)", category: "plats_cuisines", icon: "🍝", points: 12 },
+            { name: "Lasagnes épinards-ricotta (portion)", category: "plats_cuisines", icon: "🍝", points: 11 },
+            { name: "Pâtes à la carbonara (portion)", category: "plats_cuisines", icon: "🍝", points: 14 },
+            { name: "Pâtes à la bolognaise (portion)", category: "plats_cuisines", icon: "🍝", points: 10 },
+            { name: "Pâtes pesto (portion)", category: "plats_cuisines", icon: "🍝", points: 13 },
+            { name: "Pâtes aux 4 fromages (portion)", category: "plats_cuisines", icon: "🍝", points: 15 },
+            { name: "Spaghettis aglio e olio (portion)", category: "plats_cuisines", icon: "🍝", points: 8 },
+            { name: "Risotto aux champignons (portion)", category: "plats_cuisines", icon: "🍚", points: 11 },
+            { name: "Risotto parmesan (portion)", category: "plats_cuisines", icon: "🍚", points: 12 },
+            { name: "Paella (portion)", category: "plats_cuisines", icon: "🥘", points: 13 },
+            { name: "Gratin dauphinois (portion)", category: "plats_cuisines", icon: "🥔", points: 10 },
+            { name: "Gratin de courgettes (portion)", category: "plats_cuisines", icon: "🥒", points: 8 },
+            { name: "Quiche lorraine (part)", category: "plats_cuisines", icon: "🥧", points: 9 },
+            { name: "Quiche aux épinards (part)", category: "plats_cuisines", icon: "🥧", points: 8 },
+            { name: "Tarte flambée (part)", category: "plats_cuisines", icon: "🥧", points: 7 },
+            { name: "Couscous royal (portion)", category: "plats_cuisines", icon: "🍲", points: 16 },
+            { name: "Couscous poulet (portion)", category: "plats_cuisines", icon: "🍲", points: 14 },
+            { name: "Tajine agneau (portion)", category: "plats_cuisines", icon: "🍲", points: 13 },
+            { name: "Pot-au-feu (portion)", category: "plats_cuisines", icon: "🍲", points: 8 },
+            { name: "Blanquette de veau (portion)", category: "plats_cuisines", icon: "🍲", points: 12 },
+            { name: "Bœuf bourguignon (portion)", category: "plats_cuisines", icon: "🍲", points: 11 },
+            { name: "Cassoulet (portion)", category: "plats_cuisines", icon: "🍲", points: 15 },
+            { name: "Choucroute (portion)", category: "plats_cuisines", icon: "🍲", points: 18 },
+            { name: "Ratatouille (portion)", category: "plats_cuisines", icon: "🍲", points: 4 },
+            { name: "Curry de poulet (portion)", category: "plats_cuisines", icon: "🍛", points: 12 },
+            { name: "Chili con carne (portion)", category: "plats_cuisines", icon: "🍲", points: 10 },
+            { name: "Hachis parmentier (portion)", category: "plats_cuisines", icon: "🥔", points: 11 },
+            { name: "Moussaka (portion)", category: "plats_cuisines", icon: "🍆", points: 13 },
+            { name: "Tartiflette (portion)", category: "plats_cuisines", icon: "🥔", points: 15 },
+            { name: "Raclette (portion)", category: "plats_cuisines", icon: "🧀", points: 18 },
+            { name: "Fondue savoyarde (portion)", category: "plats_cuisines", icon: "🧀", points: 20 },
+            { name: "Bouillabaisse (portion)", category: "plats_cuisines", icon: "🍲", points: 9 },
+            { name: "Fish & chips (portion)", category: "plats_cuisines", icon: "🍟", points: 16 },
+            { name: "Escalope milanaise", category: "plats_cuisines", icon: "🥩", points: 12 },
+            { name: "Cordon bleu (1 unité)", category: "plats_cuisines", icon: "🥩", points: 10 },
+            { name: "Steak frites (portion)", category: "plats_cuisines", icon: "🥩", points: 15 },
+            { name: "Sushi set (12 pièces)", category: "plats_cuisines", icon: "🍣", points: 8 },
+            { name: "Sashimi (6 pièces)", category: "plats_cuisines", icon: "🍣", points: 4 },
+            { name: "Chirashi (bol)", category: "plats_cuisines", icon: "🍣", points: 12 },
+            { name: "Accras de morue (4 pièces)", category: "plats_cuisines", icon: "🐟", points: 8 },
+            { name: "Accras de morue (2 pièces)", category: "plats_cuisines", icon: "🐟", points: 4 },
+            { name: "Beignets de crevettes (4 pièces)", category: "plats_cuisines", icon: "🦐", points: 6 },
+            { name: "Tempura de légumes (portion)", category: "plats_cuisines", icon: "🥦", points: 8 },
+            { name: "Samossas légumes (2 pièces)", category: "plats_cuisines", icon: "🥟", points: 5 },
+            { name: "Samossas viande (2 pièces)", category: "plats_cuisines", icon: "🥟", points: 6 },
+            { name: "Nems poulet (2 pièces)", category: "plats_cuisines", icon: "🥟", points: 6 },
+            { name: "Nems crevettes (2 pièces)", category: "plats_cuisines", icon: "🥟", points: 5 },
+            { name: "Gyoza (6 pièces)", category: "plats_cuisines", icon: "🥟", points: 7 },
+            { name: "Raviolis vapeur (6 pièces)", category: "plats_cuisines", icon: "🥟", points: 6 },
+            { name: "Bouchées à la reine (2 pièces)", category: "plats_cuisines", icon: "🥧", points: 10 },
+            { name: "Vol-au-vent (1 pièce)", category: "plats_cuisines", icon: "🥧", points: 8 },
+            { name: "Feuilleté saumon (1 pièce)", category: "plats_cuisines", icon: "🐟", points: 7 },
+            { name: "Tourte aux légumes (portion)", category: "plats_cuisines", icon: "🥧", points: 9 },
+            { name: "Pâté en croûte (tranche)", category: "plats_cuisines", icon: "🥧", points: 8 },
+            { name: "Flamiche aux poireaux (part)", category: "plats_cuisines", icon: "🥧", points: 8 },
+            { name: "Pissaladière (part)", category: "plats_cuisines", icon: "🍕", points: 7 },
+            { name: "Socca niçoise (portion)", category: "plats_cuisines", icon: "🥞", points: 4 },
+            { name: "Falafels (4 pièces)", category: "plats_cuisines", icon: "🧆", points: 6 },
+            { name: "Houmous (100g)", category: "plats_cuisines", icon: "🥣", points: 4 },
+            { name: "Tzatziki (100g)", category: "plats_cuisines", icon: "🥣", points: 3 },
+            { name: "Guacamole (100g)", category: "plats_cuisines", icon: "🥑", points: 5 },
+            { name: "Tapenade (50g)", category: "plats_cuisines", icon: "🫒", points: 4 },
+            { name: "Caviar d'aubergine (100g)", category: "plats_cuisines", icon: "🍆", points: 3 },
+            { name: "Rougail saucisse (portion)", category: "plats_cuisines", icon: "🍲", points: 14 },
+            { name: "Carry poulet (portion)", category: "plats_cuisines", icon: "🍲", points: 12 },
+            { name: "Carry poisson (portion)", category: "plats_cuisines", icon: "🍲", points: 10 },
+            { name: "Bouchons vapeur (4 pièces)", category: "plats_cuisines", icon: "🥟", points: 8 },
+            { name: "Samoussas (2 pièces)", category: "plats_cuisines", icon: "🥟", points: 7 },
+            { name: "Dholl puri (1 unité)", category: "plats_cuisines", icon: "🫓", points: 9 },
+            { name: "Mine frit (portion)", category: "plats_cuisines", icon: "🍜", points: 12 },
+            { name: "Riz cantonnais (portion)", category: "plats_cuisines", icon: "🍚", points: 11 },
+            { name: "Sushi saumon (6 pièces)", category: "plats_cuisines", icon: "🍣", points: 6 },
+            { name: "California rolls (6 pièces)", category: "plats_cuisines", icon: "🍣", points: 8 },
+            { name: "Maki concombre (6 pièces)", category: "plats_cuisines", icon: "🍣", points: 4 },
+            { name: "Sashimi saumon (6 pièces)", category: "plats_cuisines", icon: "🍣", points: 5 },
+            { name: "Chirashi bowl", category: "plats_cuisines", icon: "🍣", points: 14 },
+            { name: "Tempura crevettes (6 pièces)", category: "plats_cuisines", icon: "🍤", points: 10 },
+            
+            // Desserts et glaces considérablement élargis
+            { name: "Tiramisu (portion)", category: "desserts", icon: "🍨", points: 8 },
+            { name: "Tarte aux pommes (part)", category: "desserts", icon: "🥧", points: 7 },
+            { name: "Tarte au citron (part)", category: "desserts", icon: "🥧", points: 8 },
+            { name: "Tarte aux fraises (part)", category: "desserts", icon: "🥧", points: 7 },
+            { name: "Tarte Tatin (part)", category: "desserts", icon: "🥧", points: 9 },
+            { name: "Clafoutis (part)", category: "desserts", icon: "🍰", points: 6 },
+            { name: "Mousse au chocolat", category: "desserts", icon: "🍮", points: 6 },
+            { name: "Mousse aux fruits", category: "desserts", icon: "🍮", points: 5 },
+            { name: "Panna cotta", category: "desserts", icon: "🍮", points: 6 },
+            { name: "Crème brûlée", category: "desserts", icon: "🍮", points: 7 },
+            { name: "Île flottante", category: "desserts", icon: "🍮", points: 5 },
+            { name: "Profiteroles (3 pièces)", category: "desserts", icon: "🍰", points: 10 },
+            { name: "Éclair au chocolat", category: "desserts", icon: "🍰", points: 8 },
+            { name: "Éclair au café", category: "desserts", icon: "🍰", points: 8 },
+            { name: "Religieuse", category: "desserts", icon: "🍰", points: 10 },
+            { name: "Paris-Brest", category: "desserts", icon: "🍰", points: 12 },
+            { name: "Mille-feuille", category: "desserts", icon: "🍰", points: 11 },
+            { name: "Opera", category: "desserts", icon: "🍰", points: 9 },
+            { name: "Forêt noire (part)", category: "desserts", icon: "🍰", points: 12 },
+            { name: "Cheesecake (part)", category: "desserts", icon: "🍰", points: 11 },
+            { name: "Brownie", category: "desserts", icon: "🍰", points: 8 },
+            { name: "Muffin chocolat", category: "desserts", icon: "🧁", points: 7 },
+            { name: "Cupcake", category: "desserts", icon: "🧁", points: 6 },
+            { name: "Donut nature", category: "desserts", icon: "🍩", points: 6 },
+            { name: "Donut glacé", category: "desserts", icon: "🍩", points: 8 },
+            { name: "Yaourt aux fruits", category: "desserts", icon: "🍨", points: 4 },
+            { name: "Compote de pommes", category: "desserts", icon: "🍎", points: 2 },
+            { name: "Salade de fruits", category: "desserts", icon: "🍓", points: 3 },
+            { name: "Glace vanille (2 boules)", category: "desserts", icon: "🍦", points: 6 },
+            { name: "Glace chocolat (2 boules)", category: "desserts", icon: "🍦", points: 7 },
+            { name: "Glace fraise (2 boules)", category: "desserts", icon: "🍦", points: 6 },
+            { name: "Sorbet citron (2 boules)", category: "desserts", icon: "🍧", points: 4 },
+            { name: "Sorbet fruits (2 boules)", category: "desserts", icon: "🍧", points: 4 },
+            { name: "Calippo", category: "desserts", icon: "🍭", points: 5 },
+            { name: "Mister Freeze", category: "desserts", icon: "🍭", points: 1 },
+            { name: "Glace à l'eau (1 bâtonnet)", category: "desserts", icon: "🍭", points: 1 },
+            { name: "Esquimau vanille", category: "desserts", icon: "🍦", points: 4 },
+            { name: "Magnum Classic", category: "desserts", icon: "🍦", points: 8 },
+            { name: "Magnum Amandes", category: "desserts", icon: "🍦", points: 9 },
+            { name: "Cornetto", category: "desserts", icon: "🍦", points: 7 },
+            { name: "Twister", category: "desserts", icon: "🍦", points: 4 },
+            { name: "Solero", category: "desserts", icon: "🍦", points: 4 },
+            { name: "Ben & Jerry's (125ml)", category: "desserts", icon: "🍦", points: 8 },
+            { name: "Häagen-Dazs (125ml)", category: "desserts", icon: "🍦", points: 9 },
+            { name: "Glace vanille (1 boule)", category: "plaisir", icon: "🍦", points: 3 },
+            { name: "Glace chocolat (1 boule)", category: "plaisir", icon: "🍦", points: 3 },
+            { name: "Glace fraise (1 boule)", category: "plaisir", icon: "🍦", points: 3 },
+            { name: "Sorbet citron (1 boule)", category: "plaisir", icon: "🍦", points: 2 },
+            { name: "Sorbet fruits rouges (1 boule)", category: "plaisir", icon: "🍦", points: 2 },
+            { name: "Magnum classique", category: "plaisir", icon: "🍦", points: 7 },
+            { name: "Esquimau", category: "plaisir", icon: "🍦", points: 4 },
+
+            // Suppléments musculation élargis
+            { name: "Protéine whey nature (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Protéine whey chocolat (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Protéine whey vanille (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Protéine caséine (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Protéine végétale (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Isolate whey (30g)", category: "supplements", icon: "💪", points: 3 },
+            { name: "Mass gainer (60g)", category: "supplements", icon: "💪", points: 8 },
+            { name: "BCAA poudre (10g)", category: "supplements", icon: "💊", points: 0 },
+            { name: "BCAA comprimés (5 unités)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Créatine monohydrate (5g)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Créatine HCL (3g)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Pre-workout (portion)", category: "supplements", icon: "💊", points: 1 },
+            { name: "Glutamine (10g)", category: "supplements", icon: "💊", points: 1 },
+            { name: "HMB (3g)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Barre protéinée 20g", category: "supplements", icon: "🍫", points: 5 },
+            { name: "Barre protéinée 30g", category: "supplements", icon: "🍫", points: 7 },
+            { name: "Cookie protéiné", category: "supplements", icon: "🍪", points: 4 },
+            { name: "Pancake protéiné (mix)", category: "supplements", icon: "🥞", points: 6 },
+            { name: "Avoine protéinée (portion)", category: "supplements", icon: "🥣", points: 7 },
+            { name: "Beurre de cacahuète fit (20g)", category: "supplements", icon: "🥜", points: 3 },
+            { name: "ZMA (3 capsules)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Oméga 3 (2 capsules)", category: "supplements", icon: "💊", points: 0 },
+            { name: "Multivitamines (1 comprimé)", category: "supplements", icon: "💊", points: 0 },
+            { name: "CLA (2 capsules)", category: "supplements", icon: "💊", points: 0 },
+            { name: "L-Carnitine (portion)", category: "supplements", icon: "💊", points: 0 },
+            
+            // Sauces considérablement élargies
+            { name: "Huile d'olive (1 c.s)", category: "sauces", icon: "🫒", points: 3 },
+            { name: "Huile de tournesol (1 c.s)", category: "sauces", icon: "🌻", points: 3 },
+            { name: "Huile de colza (1 c.s)", category: "sauces", icon: "🌻", points: 3 },
+            { name: "Huile de coco (1 c.s)", category: "sauces", icon: "🥥", points: 3 },
+            { name: "Beurre doux (10g)", category: "sauces", icon: "🧈", points: 2 },
+            { name: "Beurre salé (10g)", category: "sauces", icon: "🧈", points: 2 },
+            { name: "Margarine (10g)", category: "sauces", icon: "🧈", points: 2 },
+            { name: "Mayonnaise (1 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Mayonnaise allégée (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Aïoli (1 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Sauce blanche (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Sauce cocktail (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Sauce tartare (1 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Ketchup (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Moutarde de Dijon (1 c.s)", category: "sauces", icon: "🥄", points: 0 },
+            { name: "Moutarde à l'ancienne (1 c.s)", category: "sauces", icon: "🥄", points: 0 },
+            { name: "Moutarde au miel (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Vinaigrette (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Vinaigrette allégée (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Sauce soja (1 c.s)", category: "sauces", icon: "🥄", points: 0 },
+            { name: "Sauce teriyaki (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Sauce barbecue (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Tabasco (1 c.c)", category: "sauces", icon: "🌶️", points: 0 },
+            { name: "Harissa (1 c.c)", category: "sauces", icon: "🌶️", points: 0 },
+            { name: "Pesto (1 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Tapenade (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Crème fraîche (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Crème fraîche allégée (1 c.s)", category: "sauces", icon: "🥄", points: 1 },
+            { name: "Béchamel (2 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Sauce tomate (2 c.s)", category: "sauces", icon: "🍅", points: 1 },
+            { name: "Coulis de tomate (2 c.s)", category: "sauces", icon: "🍅", points: 0 },               
+            { name: "Sauce hollandaise (2 c.s)", category: "sauces", icon: "🥄", points: 4 },
+            { name: "Sauce béarnaise (2 c.s)", category: "sauces", icon: "🥄", points: 4 },
+            { name: "Sauce au poivre (2 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Sauce champignons (2 c.s)", category: "sauces", icon: "🍄", points: 2 },
+            { name: "Sauce curry (2 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Sauce aigre-douce (2 c.s)", category: "sauces", icon: "🥄", points: 3 },
+            { name: "Sauce satay (2 c.s)", category: "sauces", icon: "🥄", points: 4 },
+            { name: "Sauce ranch (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Sauce caesar (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Sauce mille-îles (1 c.s)", category: "sauces", icon: "🥄", points: 2 },
+            { name: "Margarine (10g)", category: "sauces", icon: "🧈", points: 2 },
+            { name: "Margarine allégée (10g)", category: "sauces", icon: "🧈", points: 1 },
+            
+            // Condiments et épices
+            { name: "Sel (1 pincée)", category: "sauces", icon: "🧂", points: 0 },
+            { name: "Poivre (1 pincée)", category: "sauces", icon: "🌶️", points: 0 },
+            { name: "Paprika (1 c.c)", category: "sauces", icon: "🌶️", points: 0 },
+            { name: "Cumin (1 c.c)", category: "sauces", icon: "🌿", points: 0 },
+            { name: "Thym (1 c.c)", category: "sauces", icon: "🌿", points: 0 },
+            { name: "Basilic (1 c.c)", category: "sauces", icon: "🌿", points: 0 },
+            { name: "Persil (1 c.s)", category: "sauces", icon: "🌿", points: 0 },
+            { name: "Ciboulette (1 c.s)", category: "sauces", icon: "🌿", points: 0 },
+            { name: "Ail (1 gousse)", category: "sauces", icon: "🧄", points: 0 },
+            { name: "Oignon (1 moyen)", category: "legumes", icon: "🧅", points: 1 },
+            { name: "Échalote (2 unités)", category: "legumes", icon: "🧅", points: 0 },
+
+            // Plaisirs
+            { name: "Chocolat noir 70% (20g)", category: "plaisir", icon: "🍫", points: 3 },
+            { name: "Chocolat noir 85% (20g)", category: "plaisir", icon: "🍫", points: 3 },
+            { name: "Chocolat au lait (20g)", category: "plaisir", icon: "🍫", points: 4 },
+            { name: "Chocolat blanc (20g)", category: "plaisir", icon: "🍫", points: 4 },
+            { name: "Nutella (20g)", category: "plaisir", icon: "🍫", points: 3 },
+            { name: "Bonbons gélifiés (30g)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Bonbons au chocolat (30g)", category: "plaisir", icon: "🍬", points: 4 },
+            { name: "Caramels (30g)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Cookies (2 pièces)", category: "plaisir", icon: "🍪", points: 6 },
+            { name: "Petits beurres (4 pièces)", category: "plaisir", icon: "🍪", points: 4 },
+            { name: "Madeleines (2 pièces)", category: "plaisir", icon: "🍪", points: 5 },
+            { name: "Chips nature (30g)", category: "plaisir", icon: "🥔", points: 4 },
+            { name: "Chips saveur (30g)", category: "plaisir", icon: "🥔", points: 4 },
+            { name: "Biscuits apéritif (30g)", category: "plaisir", icon: "🥨", points: 4 },
+            { name: "Cacahuètes (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Amandes (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Noix (30g)", category: "plaisir", icon: "🥜", points: 6 },
+            { name: "Pistaches (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Pop-corn (30g)", category: "plaisir", icon: "🍿", points: 3 },
+            { name: "Barbe à papa", category: "plaisir", icon: "🍭", points: 3 },
+            { name: "Marshmallows (30g)", category: "plaisir", icon: "🍭", points: 3 },
+            { name: "Noix de cajou (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Rosi (30g)", category: "plaisir", icon: "🥜", points: 6 },
+            { name: "Noisettes (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Pignons de pin (30g)", category: "plaisir", icon: "🥜", points: 6 },
+            { name: "Graines de tournesol (30g)", category: "plaisir", icon: "🌻", points: 5 },
+            { name: "Graines de courge (30g)", category: "plaisir", icon: "🎃", points: 4 },
+            { name: "Mélange de fruits secs (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Noix de pécan (30g)", category: "plaisir", icon: "🥜", points: 6 },
+            { name: "Noix du Brésil (30g)", category: "plaisir", icon: "🥜", points: 6 },
+            { name: "Crackers apéritif (15g)", category: "plaisir", icon: "🍘", points: 2 },
+            { name: "Bretzels (30g)", category: "plaisir", icon: "🥨", points: 3 },
+            { name: "Tortilla chips (30g)", category: "plaisir", icon: "🌮", points: 4 },
+            { name: "Popcorn salé (50g)", category: "plaisir", icon: "🍿", points: 5 },
+            { name: "Popcorn caramel (30g)", category: "plaisir", icon: "🍿", points: 4 },
+            { name: "Cacahuètes grillées salées (15g)", category: "plaisir", icon: "🥜", points: 3 },
+            { name: "Mix apéritif (30g)", category: "plaisir", icon: "🥜", points: 5 },
+            { name: "Olives vertes (10 unités)", category: "plaisir", icon: "🫒", points: 1 },
+            { name: "Olives noires (10 unités)", category: "plaisir", icon: "🫒", points: 2 },
+            { name: "Cornichons (5 unités)", category: "plaisir", icon: "🥒", points: 0 },
+
+            // Pâtisseries et desserts supplémentaires
+            { name: "Tarte aux pommes (1 part)", category: "plaisir", icon: "🥧", points: 8 },
+            { name: "Tarte aux fraises (1 part)", category: "plaisir", icon: "🥧", points: 9 },
+            { name: "Tarte au citron (1 part)", category: "plaisir", icon: "🥧", points: 10 },
+            { name: "Tarte tatin (1 part)", category: "plaisir", icon: "🥧", points: 12 },
+            { name: "Millefeuille", category: "plaisir", icon: "🧁", points: 14 },
+            { name: "Saint-Honoré", category: "plaisir", icon: "🧁", points: 16 },
+            { name: "Opéra", category: "plaisir", icon: "🍰", points: 12 },
+            { name: "Fraisier (1 part)", category: "plaisir", icon: "🍰", points: 11 },
+            { name: "Forêt noire (1 part)", category: "plaisir", icon: "🍰", points: 13 },
+            { name: "Tiramisu (1 part)", category: "plaisir", icon: "🍰", points: 10 },
+            { name: "Profiteroles (3 pièces)", category: "plaisir", icon: "🧁", points: 12 },
+            { name: "Millefeuille", category: "plaisir", icon: "🧁", points: 15 },
+            { name: "Flan pâtissier (1 part)", category: "plaisir", icon: "🍮", points: 7 },
+            { name: "Clafoutis (1 part)", category: "plaisir", icon: "🍮", points: 6 },
+            { name: "Far breton (1 part)", category: "plaisir", icon: "🍮", points: 8 },
+
+            // Viennoiseries
+            { name: "Mini pain au chocolat", category: "plaisir", icon: "🥐", points: 4 },
+            { name: "Pain au chocolat", category: "plaisir", icon: "🥐", points: 8 },
+            { name: "Mini croissant", category: "plaisir", icon: "🥐", points: 3 },
+            { name: "Croissant", category: "plaisir", icon: "🥐", points: 6 },
+            { name: "Pain suisse", category: "plaisir", icon: "🥐", points: 8 },
+            { name: "Chocolatine", category: "plaisir", icon: "🥐", points: 8 },
+            { name: "Pain aux raisins", category: "plaisir", icon: "🥐", points: 8 },
+            { name: "Chausson aux pommes", category: "plaisir", icon: "🥐", points: 9 },
+            { name: "Brioche nature", category: "plaisir", icon: "🍞", points: 6 },
+            { name: "Brioche aux pépites", category: "plaisir", icon: "🍞", points: 8 },
+            { name: "Pain viennois", category: "plaisir", icon: "🥖", points: 5 },
+            { name: "Chouquette (5 pièces)", category: "plaisir", icon: "🧁", points: 4 },
+            { name: "Éclair au chocolat", category: "plaisir", icon: "🧁", points: 10 },
+            { name: "Éclair au café", category: "plaisir", icon: "🧁", points: 9 },
+            { name: "Religieuse au chocolat", category: "plaisir", icon: "🧁", points: 12 },
+            { name: "Paris-Brest", category: "plaisir", icon: "🧁", points: 15 },
+            { name: "Chou à la crème", category: "plaisir", icon: "🧁", points: 8 },
+            { name: "Palmier", category: "plaisir", icon: "🥐", points: 6 },
+            { name: "Torsade aux pépites", category: "plaisir", icon: "🥐", points: 7 },
+            { name: "Danish aux fruits", category: "plaisir", icon: "🥐", points: 8 },
+
+            // Boissons considérablement élargies
+            { name: "Eau plate (illimité)", category: "boissons", icon: "💧", points: 0 },
+            { name: "Eau gazeuse (illimité)", category: "boissons", icon: "💧", points: 0 },
+            { name: "Thé nature (sans sucre)", category: "boissons", icon: "🍵", points: 0 },
+            { name: "Thé vert (sans sucre)", category: "boissons", icon: "🍵", points: 0 },
+            { name: "Tisane (sans sucre)", category: "boissons", icon: "🍵", points: 0 },
+            { name: "Café noir (sans sucre)", category: "boissons", icon: "☕", points: 0 },
+            { name: "Café 1 sucre", category: "boissons", icon: "☕", points: 1 },
+            { name: "Café 2 sucres", category: "boissons", icon: "☕", points: 2 },
+            { name: "Café au lait", category: "boissons", icon: "☕", points: 2 },
+            { name: "Cappuccino", category: "boissons", icon: "☕", points: 3 },
+            { name: "Latte", category: "boissons", icon: "☕", points: 4 },
+            { name: "Chocolat chaud", category: "boissons", icon: "☕", points: 6 },
+            { name: "Coca-Cola (33cl)", category: "boissons", icon: "🥤", points: 5 },
+            { name: "Coca-Cola Zero (33cl)", category: "boissons", icon: "🥤", points: 0 },
+            { name: "Pepsi (33cl)", category: "boissons", icon: "🥤", points: 4 },
+            { name: "Sprite (33cl)", category: "boissons", icon: "🥤", points: 4 },
+            { name: "Fanta (33cl)", category: "boissons", icon: "🥤", points: 4 },
+            { name: "Ice Tea (33cl)", category: "boissons", icon: "🥤", points: 3 },
+            { name: "Red Bull (25cl)", category: "boissons", icon: "🥤", points: 4 },
+            { name: "Monster Energy (50cl)", category: "boissons", icon: "🥤", points: 7 },
+            { name: "Jus d'orange (25cl)", category: "boissons", icon: "🧃", points: 4 },
+            { name: "Jus de pomme (25cl)", category: "boissons", icon: "🧃", points: 3 },
+            { name: "Jus de raisin (25cl)", category: "boissons", icon: "🧃", points: 4 },
+            { name: "Jus de pamplemousse (25cl)", category: "boissons", icon: "🧃", points: 3 },
+            { name: "Jus de cranberry (25cl)", category: "boissons", icon: "🧃", points: 3 },
+            { name: "Smoothie banane (25cl)", category: "boissons", icon: "🥤", points: 5 },
+            { name: "Smoothie fruits rouges (25cl)", category: "boissons", icon: "🥤", points: 5 },
+            { name: "Smoothie vert (25cl)", category: "boissons", icon: "🥤", points: 3 },
+            { name: "Lait de coco (25cl)", category: "boissons", icon: "🥥", points: 5 },
+            { name: "Lait d'amande (25cl)", category: "boissons", icon: "🥛", points: 1 },
+            { name: "Lait de soja (25cl)", category: "boissons", icon: "🥛", points: 2 },
+            { name: "Lait d'avoine (25cl)", category: "boissons", icon: "🥛", points: 3 },
+            { name: "Kombucha (25cl)", category: "boissons", icon: "🍵", points: 1 },
+            { name: "Starbucks Frappuccino", category: "boissons", icon: "☕", points: 12 },
+            { name: "Starbucks Latte Grande", category: "boissons", icon: "☕", points: 6 },
+            { name: "Starbucks Caramel Macchiato", category: "boissons", icon: "☕", points: 8 },
+            
+            // Alcools
+            { name: "Vin rouge (15cl)", category: "boissons", icon: "🍷", points: 3 },
+            { name: "Vin blanc (15cl)", category: "boissons", icon: "🍷", points: 3 },
+            { name: "Vin rosé (15cl)", category: "boissons", icon: "🍷", points: 3 },
+            { name: "Champagne (15cl)", category: "boissons", icon: "🍾", points: 3 },
+            { name: "Prosecco (15cl)", category: "boissons", icon: "🍾", points: 3 },
+            { name: "Bière blonde (25cl)", category: "boissons", icon: "🍺", points: 4 },
+            { name: "Bière brune (25cl)", category: "boissons", icon: "🍺", points: 4 },
+            { name: "Bière blanche (25cl)", category: "boissons", icon: "🍺", points: 4 },
+            { name: "Bière sans alcool (25cl)", category: "boissons", icon: "🍺", points: 2 },
+            { name: "Cidre (25cl)", category: "boissons", icon: "🍺", points: 3 },
+            { name: "Whisky (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Vodka (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Rhum (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Gin (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Tequila (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Cognac (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Armagnac (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Pastis/Ricard (4cl)", category: "boissons", icon: "🥃", points: 2 },
+            { name: "Get 27 (4cl)", category: "boissons", icon: "🥃", points: 3 },
+            { name: "Baileys (4cl)", category: "boissons", icon: "🥃", points: 4 },
+            { name: "Amaretto (4cl)", category: "boissons", icon: "🥃", points: 3 },
+            { name: "Limoncello (4cl)", category: "boissons", icon: "🥃", points: 3 },
+            
+            // Cocktails
+            { name: "Mojito", category: "boissons", icon: "🍹", points: 5 },
+            { name: "Virgin Mojito", category: "boissons", icon: "🍹", points: 3 },
+            { name: "Piña Colada", category: "boissons", icon: "🍹", points: 8 },
+            { name: "Daiquiri", category: "boissons", icon: "🍹", points: 4 },
+            { name: "Margarita", category: "boissons", icon: "🍹", points: 5 },
+            { name: "Cosmopolitan", category: "boissons", icon: "🍹", points: 4 },
+            { name: "Sex on the Beach", category: "boissons", icon: "🍹", points: 6 },
+            { name: "Long Island Iced Tea", category: "boissons", icon: "🍹", points: 7 },
+            { name: "Bloody Mary", category: "boissons", icon: "🍹", points: 3 },
+            { name: "Moscow Mule", category: "boissons", icon: "🍹", points: 4 },
+            { name: "Caipirinha", category: "boissons", icon: "🍹", points: 5 },
+            { name: "Gin Tonic", category: "boissons", icon: "🍹", points: 3 },
+            { name: "Whisky Coca", category: "boissons", icon: "🍹", points: 5 },
+            { name: "Vodka Orange", category: "boissons", icon: "🍹", points: 4 },
+            { name: "Kir", category: "boissons", icon: "🍹", points: 3 },
+            { name: "Kir Royal", category: "boissons", icon: "🍹", points: 4 },
+            { name: "Sangria (20cl)", category: "boisons", icon: "🍹", points: 5 },
+            { name: "Punch (20cl)", category: "boissons", icon: "🍹", points: 6 },
+            { name: "Ti Punch", category: "boissons", icon: "🍹", points: 4 },
+
+		// Bonbons et confiseries
+            { name: "Haribo Tagada (10 pièces)", category: "plaisir", icon: "🍬", points: 4 },
+            { name: "Haribo Ours d'Or (10 pièces)", category: "plaisir", icon: "🐻", points: 3 },
+            { name: "Haribo Dragibus (30g)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Haribo Croco (6 pièces)", category: "plaisir", icon: "🐊", points: 4 },
+            { name: "Lutti Ours (10 pièces)", category: "plaisir", icon: "🐻", points: 3 },
+            { name: "Carambar (1 pièce)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Krema (1 pièce)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Malabar (1 chewing-gum)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Mentos (1 rouleau)", category: "plaisir", icon: "🍬", points: 4 },
+            { name: "Tic Tac (1 boîte)", category: "plaisir", icon: "🍬", points: 2 },
+            { name: "Ricola (5 pastilles)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Fisherman's Friend (5 pastilles)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Bonbons Werther's (5 pièces)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Bonbons Violette Toulouse (10 pièces)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Cachou Lajaunie (1 boîte)", category: "plaisir", icon: "🍬", points: 2 },
+            { name: "Anis de Flavigny (10 pièces)", category: "plaisir", icon: "🍬", points: 2 },
+            { name: "Dragées (20g)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Berlingots (5 pièces)", category: "plaisir", icon: "🍬", points: 3 },
+            { name: "Sucettes Chupa Chups (2 pièces)", category: "plaisir", icon: "🍭", points: 2 },
+            { name: "Bonbons Hollywood (1 paquet)", category: "plaisir", icon: "🍬", points: 2 },
+            { name: "Réglisse Zan (10 pièces)", category: "plaisir", icon: "🖤", points: 2 },
+            { name: "Nounours Guimauve (5 pièces)", category: "plaisir", icon: "🐻", points: 3 },
+            { name: "Chamallows (5 pièces)", category: "plaisir", icon: "☁️", points: 2 },
+            { name: "Fraises Tagada Haribo (8 pièces)", category: "plaisir", icon: "🍓", points: 4 },
+            { name: "Coca Haribo (10 pièces)", category: "plaisir", icon: "🥤", points: 3 },
+            { name: "Schtroumpfs Haribo (12 pièces)", category: "plaisir", icon: "🔵", points: 3 },
+            { name: "Bonbons sans sucre (10 pièces)", category: "plaisir", icon: "🍬", points: 1 },
+            { name: "Smarties (1 tube)", category: "plaisir", icon: "🍬", points: 4 },
+            { name: "M&M's (45g)", category: "plaisir", icon: "🍫", points: 6 },
+            { name: "Skittles (45g)", category: "plaisir", icon: "🍬", points: 5 },
+            { name: "Bounty (1 barre)", category: "plaisir", icon: "🍫", points: 6 },
+            { name: "Mars (1 barre)", category: "plaisir", icon: "🍫", points: 6 },
+            { name: "Snickers (1 barre)", category: "plaisir", icon: "🍫", points: 7 },
+            { name: "Twix (2 barres)", category: "plaisir", icon: "🍫", points: 6 },
+            { name: "KitKat (4 doigts)", category: "plaisir", icon: "🍫", points: 5 },
+            { name: "Lion (1 barre)", category: "plaisir", icon: "🍫", points: 7 },
+            { name: "Toblerone (3 triangles)", category: "plaisir", icon: "🍫", points: 4 },
+     ];
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            renderFoodGrid();
+            updateDisplay();
+            loadProfileData();
+            updateHistoryDisplay();
+            updateWeeklyPointsDisplay();
+        });
+
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Update history when history tab is shown
+            if (tabName === 'history') {
+                updateHistoryDisplay();
+            }
+        }
+
+        // Data persistence functions
+        function saveData() {
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            
+            // Check for weekly reset BEFORE saving
+            checkWeeklyReset();
+            
+            // Calculate remaining points for today
+            const dailyPoints = userData.dailyPoints || 25;
+            const totalConsumed = consumedFoods.reduce((sum, food) => sum + food.totalPoints, 0);
+            const totalActivity = activities.reduce((sum, activity) => sum + activity.points, 0);
+            const totalAvailable = dailyPoints + totalActivity + usedWeeklyPoints;
+            const remaining = Math.max(0, totalAvailable - totalConsumed);
+            
+            // Save today's data to history (CORRECTION: Always preserve daily data)
+            historyData[todayKey] = {
+                consumedFoods: [...consumedFoods],
+                activities: [...activities],
+                totalCalories: totalCalories,
+                totalSteps: totalSteps,
+                dailyPoints: userData.dailyPoints || 25,
+                usedWeeklyPoints: usedWeeklyPoints,
+                savedPoints: remaining,
+                lastSaved: new Date().toISOString()
+            };
+            
+            const data = {
+                userData,
+                consumedFoods,
+                activities,
+                totalCalories,
+                totalSteps,
+                historyData, // CORRECTION: Always preserve complete history
+                weeklyExtraPoints,
+                currentWeekKey,
+                usedWeeklyPoints,
+                lastSaved: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                // Create backup
+                localStorage.setItem(BACKUP_KEY, JSON.stringify(data));
+                console.log('✅ Data saved successfully to localStorage');
+            } catch (error) {
+                console.error('❌ Error saving data:', error);
+                showToast('⚠️ Erreur lors de la sauvegarde');
+            }
+        }
+
+        function loadData() {
+            try {
+                const dataString = localStorage.getItem(STORAGE_KEY);
+                const data = dataString ? JSON.parse(dataString) : null;
+                
+                if (data) {
+                    userData = data.userData || {};
+                    historyData = data.historyData || {}; // CORRECTION: Load complete history
+                    weeklyExtraPoints = data.weeklyExtraPoints || 0;
+                    currentWeekKey = data.currentWeekKey || getCurrentWeekKey();
+                    
+                    // Check if data is from today
+                    const today = new Date().toDateString();
+                    const lastSaved = data.lastSaved ? new Date(data.lastSaved).toDateString() : null;
+                    
+                    if (lastSaved !== today) {
+    // Nouveau jour -> vider seulement la journée courante
+    consumedFoods = [];
+    activities = [];
+    totalCalories = 0;
+    totalSteps = 0;
+    usedWeeklyPoints = 0;
+    console.log('🌅 Nouveau jour détecté : données du jour réinitialisées, historique préservé');
+    showToast('🌅 Nouveau jour détecté !');
+                    } else {
+                        // Same day - load saved daily data
+                        consumedFoods = data.consumedFoods || [];
+                        activities = data.activities || [];
+                        totalCalories = data.totalCalories || 0;
+                        totalSteps = data.totalSteps || 0;
+                        usedWeeklyPoints = data.usedWeeklyPoints || 0;
+                    }
+                    
+                    // Check for weekly reset
+                    checkWeeklyReset();
+                    console.log('✅ Data loaded successfully from localStorage');
+                } else {
+                    initializeDefaultData();
+                    console.log('🆕 No saved data found, using defaults');
+                }
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                // Try to load from backup
+                try {
+                    const backupString = localStorage.getItem(BACKUP_KEY);
+                    if (backupString) {
+                        const backupData = JSON.parse(backupString);
+                        console.log('🔄 Loaded from backup');
+                        showToast('🔄 Données restaurées depuis la sauvegarde');
+                        
+                        // Process backup data same as above
+                        userData = backupData.userData || {};
+                        historyData = backupData.historyData || {}; // CORRECTION: Preserve history from backup
+                        weeklyExtraPoints = backupData.weeklyExtraPoints || 0;
+                        currentWeekKey = backupData.currentWeekKey || getCurrentWeekKey();
+                        
+                        // Same day check for backup
+                        const today = new Date().toDateString();
+                        const lastSaved = backupData.lastSaved ? new Date(backupData.lastSaved).toDateString() : null;
+                        
+                        if (lastSaved !== today) {
+                            consumedFoods = [];
+                            activities = [];
+                            totalCalories = 0;
+                            totalSteps = 0;
+                            usedWeeklyPoints = 0;
+                        } else {
+                            consumedFoods = backupData.consumedFoods || [];
+                            activities = backupData.activities || [];
+                            totalCalories = backupData.totalCalories || 0;
+                            totalSteps = backupData.totalSteps || 0;
+                            usedWeeklyPoints = backupData.usedWeeklyPoints || 0;
+                        }
+                        
+                        checkWeeklyReset();
+                    } else {
+                        initializeDefaultData();
+                    }
+                } catch (backupError) {
+                    console.error('❌ Error loading backup:', backupError);
+                    initializeDefaultData();
+                    showToast('⚠️ Erreur de chargement, données réinitialisées');
+                }
+            }
+        }
+
+       function exportData() {
+            try {
+                const data = {
+                    userData,
+                    consumedFoods,
+                    activities,
+                    totalCalories,
+                    totalSteps,
+                    historyData,
+                    weeklyExtraPoints,
+                    currentWeekKey,
+                    usedWeeklyPoints,
+                    exportDate: new Date().toISOString(),
+                    version: "2.0"
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isIOS || isMobile) {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(dataStr).then(() => {
+                            showToast('📋 Données copiées !');
+                            alert('✅ Données exportées !\n\nCollez-les dans un fichier texte.');
+                        }).catch(() => {
+                            showExportModal(dataStr);
+                        });
+                    } else {
+                        showExportModal(dataStr);
+                    }
+                } else {
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    const url = URL.createObjectURL(dataBlob);
+                    
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `antomani-weight-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    URL.revokeObjectURL(url);
+                    showToast('📤 Données exportées !');
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                showToast('❌ Erreur export');
+            }
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Validate imported data
+                        if (data && typeof data === 'object') {
+                            userData = data.userData || userData;
+                            historyData = data.historyData || {}; // CORRECTION: Import complete history
+                            weeklyExtraPoints = data.weeklyExtraPoints || 0;
+                            currentWeekKey = data.currentWeekKey || getCurrentWeekKey();
+                            
+                            // CORRECTION: Smart import - preserve current day data if different
+                            const today = new Date().toDateString();
+                            const importDate = data.exportDate ? new Date(data.exportDate).toDateString() : null;
+                            
+                            if (importDate === today) {
+                                // Same day import - restore daily data
+                                consumedFoods = data.consumedFoods || [];
+                                activities = data.activities || [];
+                                totalCalories = data.totalCalories || 0;
+                                totalSteps = data.totalSteps || 0;
+                                usedWeeklyPoints = data.usedWeeklyPoints || 0;
+                            } else {
+                                // Different day - keep current daily data
+                                showToast('Historique importe, données du jour conservées');
+                            }
+                            
+                            // Update displays
+                            loadProfileData();
+                            updateDisplay();
+                            renderFoodGrid();
+                            updateHistoryDisplay();
+                            updateWeeklyPointsDisplay();
+                            
+                            // Save imported data
+                            saveData();
+                            
+                            showToast('📥 Données importées avec succès !');
+                        } else {
+                            showToast('❌ Fichier invalide');
+                        }
+                    } catch (error) {
+                        console.error('❌ Import error:', error);
+                        showToast('❌ Erreur lors de l\'import');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+
+        // Weekly Points Management
+        function getCurrentWeekKey() {
+            const now = new Date();
+            const monday = new Date(now);
+            const dayOfWeek = now.getDay();
+            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            monday.setDate(now.getDate() - daysFromMonday);
+            return monday.toISOString().split('T')[0];
+        }
+
+        function getNextMondayDate() {
+            const now = new Date();
+            const monday = new Date(now);
+            const dayOfWeek = now.getDay();
+            const daysUntilMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
+            monday.setDate(now.getDate() + daysUntilMonday);
+            return monday.toLocaleDateString('fr-FR');
+        }
+
+        function checkWeeklyReset() {
+            const newWeekKey = getCurrentWeekKey();
+            if (currentWeekKey && currentWeekKey !== newWeekKey) {
+                // CORRECTION: Reset only weekly extra points, preserve all history
+                weeklyExtraPoints = 0;
+                showToast('📅 Nouvelle semaine ! Points écarts remis à zéro.');
+                console.log('Weekly reset: extra points reset, history preserved');
+            }
+            currentWeekKey = newWeekKey;
+        }
+
+        function saveRemainingPoints() {
+    const dailyPoints = userData.dailyPoints || 25;
+    const totalConsumed = consumedFoods.reduce((sum, food) => sum + food.totalPoints, 0);
+    const totalActivity = activities.reduce((sum, activity) => sum + activity.points, 0);
+    const totalAvailable = dailyPoints + totalActivity + usedWeeklyPoints;
+    const remaining = totalAvailable - totalConsumed;
+    
+    if (remaining <= 0) {
+        showToast('❌ Aucun point restant à économiser !');
+        return;
+    }
+    
+    weeklyExtraPoints += remaining;
+    
+    // ✅ Ajout dans l’historique du jour
+    const todayKey = getDateKey(new Date());
+    if (!historyData[todayKey]) {
+        historyData[todayKey] = {
+            consumedFoods: [],
+            activities: [],
+            totalCalories: 0,
+            totalSteps: 0,
+            dailyPoints: userData.dailyPoints || 25,
+            usedWeeklyPoints: 0,
+            savedPoints: 0,
+            lastSaved: new Date().toISOString()
+        };
+    }
+    historyData[todayKey].savedPoints = (historyData[todayKey].savedPoints || 0) + remaining;
+
+    showToast(`💰 ${remaining} points économisés pour les écarts ! Total: ${weeklyExtraPoints}`);
+    updateWeeklyPointsDisplay();
+    saveData();
+}
+        function useWeeklyPoints() {
+            if (weeklyExtraPoints <= 0) {
+                showToast('❌ Aucun point écart disponible !');
+                return;
+            }
+            
+            const pointsToUse = prompt(`Combien de points écarts voulez-vous utiliser ? (Disponibles: ${weeklyExtraPoints})`);
+            const points = parseInt(pointsToUse);
+            
+            if (isNaN(points) || points <= 0) {
+                showToast('❌ Nombre de points invalide !');
+                return;
+            }
+            
+            if (points > weeklyExtraPoints) {
+                showToast('❌ Pas assez de points écarts disponibles !');
+                return;
+            }
+            
+            weeklyExtraPoints -= points;
+            usedWeeklyPoints += points;
+            
+            updateDisplay();
+            updateWeeklyPointsDisplay();
+            saveData();
+            showToast(`🍕 ${points} points écarts ajoutés ! Restants: ${weeklyExtraPoints}`);
+        }
+
+        function updateWeeklyPointsDisplay() {
+            document.getElementById('weeklyPointsDisplay').textContent = weeklyExtraPoints;
+            document.getElementById('nextResetDate').textContent = getNextMondayDate();
+        }
+
+        // Profile management
+        function toggleCalculationMode(mode) {
+            document.getElementById('autoMode').classList.toggle('active', mode === 'auto');
+            document.getElementById('manualMode').classList.toggle('active', mode === 'manual');
+            document.getElementById('autoModeForm').style.display = mode === 'auto' ? 'block' : 'none';
+            document.getElementById('manualModeForm').style.display = mode === 'manual' ? 'block' : 'none';
+            
+            userData.calculationMode = mode;
+            saveData();
+        }
+
+        function calculatePoints() {
+            const name = document.getElementById('userName').value;
+            const age = parseInt(document.getElementById('userAge').value);
+            const gender = document.getElementById('userGender').value;
+            const height = parseInt(document.getElementById('userHeight').value);
+            const weight = parseFloat(document.getElementById('currentWeight').value);
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const activityLevel = parseFloat(document.getElementById('activityLevel').value);
+            const weightLossGoal = parseFloat(document.getElementById('weightLossGoal').value);
+
+            if (!age || !gender || !height || !weight || !targetWeight || !activityLevel || !weightLossGoal) {
+                document.getElementById('calculationResults').style.display = 'none';
+                return;
+            }
+
+            let bmrCurrent;
+            if (gender === 'male') {
+                bmrCurrent = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmrCurrent = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+
+            let bmrTarget;
+            if (gender === 'male') {
+                bmrTarget = (10 * targetWeight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmrTarget = (10 * targetWeight) + (6.25 * height) - (5 * age) - 161;
+            }
+
+            const tdeeCurrent = bmrCurrent * activityLevel;
+            const tdeeTarget = bmrTarget * activityLevel;
+            
+            const deficitPerWeek = weightLossGoal * 7700;
+            const deficitPerDay = deficitPerWeek / 7;
+            
+            const targetCalories = tdeeTarget;
+            const maxDeficit = tdeeCurrent * 0.25;
+            const actualDeficit = Math.min(deficitPerDay, maxDeficit);
+            const finalCalories = Math.max(targetCalories, tdeeCurrent - actualDeficit);
+            
+            const theoreticalPoints = Math.round(finalCalories / 80);
+
+            let finalPoints;
+            let genderRangeText = '';
+            let adjustmentMade = false;
+
+            if (gender === 'female') {
+                finalPoints = Math.max(23, Math.min(30, theoreticalPoints));
+                genderRangeText = 'Fourchette : 23-30 points/jour';
+                if (theoreticalPoints < 23 || theoreticalPoints > 30) {
+                    adjustmentMade = true;
+                }
+            } else {
+                finalPoints = Math.max(30, Math.min(40, theoreticalPoints));
+                genderRangeText = 'Fourchette : 30-40 points/jour';
+                if (theoreticalPoints < 30 || theoreticalPoints > 40) {
+                    adjustmentMade = true;
+                }
+            }
+
+            const heightM = height / 100;
+            const currentBMI = (weight / (heightM * heightM)).toFixed(1);
+            const targetBMI = (targetWeight / (heightM * heightM)).toFixed(1);
+
+            document.getElementById('bmrResult').textContent = Math.round(bmrCurrent) + ' kcal/jour';
+            document.getElementById('tdeeResult').textContent = Math.round(tdeeCurrent) + ' kcal/jour';
+            document.getElementById('deficitResult').textContent = Math.round(actualDeficit) + ' kcal/jour';
+            document.getElementById('targetCaloriesResult').textContent = Math.round(finalCalories) + ' kcal/jour';
+            document.getElementById('finalPoints').textContent = finalPoints;
+
+            let explanation = `Basé sur objectif de ${weightLossGoal}kg/semaine. `;
+            explanation += `Calcul pour métabolisme à ${targetWeight}kg.`;
+            if (adjustmentMade) {
+                explanation += ` Ajusté aux limites saines.`;
+            }
+            document.getElementById('calculationExplanation').textContent = explanation;
+
+            const genderRangeInfo = document.getElementById('genderRangeInfo');
+            const genderRangeTextDiv = document.getElementById('genderRangeText');
+            if (adjustmentMade) {
+                genderRangeTextDiv.innerHTML = `<strong>Ajustement :</strong><br>${genderRangeText}<br>Théorique : ${theoreticalPoints} → Ajusté : ${finalPoints} pts`;
+                genderRangeInfo.style.display = 'block';
+            } else {
+                genderRangeTextDiv.textContent = genderRangeText;
+                genderRangeInfo.style.display = 'block';
+            }
+
+            document.getElementById('calculationResults').style.display = 'block';
+            document.getElementById('currentBMI').textContent = currentBMI;
+            document.getElementById('targetBMI').textContent = targetBMI;
+            document.getElementById('bmrDisplay').textContent = Math.round(bmrTarget) + ' (cible)';
+            document.getElementById('calculatedPoints').textContent = finalPoints;
+
+            userData.profile = {
+                name, age, gender, height, weight, targetWeight, 
+                activityLevel, weightLossGoal, 
+                bmr: bmrCurrent, 
+                bmrTarget: bmrTarget,
+                tdee: tdeeCurrent, 
+                dailyPoints: finalPoints, 
+                theoreticalPoints, 
+                adjustmentMade,
+                targetCalories: finalCalories
+            };
+            userData.dailyPoints = finalPoints;
+            
+            updateProfileStatus();
+            saveData();
+        }
+
+
+        function updateManualPoints() {
+            const points = parseInt(document.getElementById('manualPoints').value);
+            if (points && points >= 20 && points <= 50) {
+                userData.dailyPoints = points;
+                saveData();
+            }
+        }
+
+        function updateProfileStatus() {
+            const profileStatus = document.getElementById('profileStatus');
+            const profileTitle = document.getElementById('profileTitle');
+            const profileSubtitle = document.getElementById('profileSubtitle');
+            const profileStats = document.getElementById('profileStats');
+
+            if (userData.profile && userData.dailyPoints) {
+                profileStatus.classList.add('profile-complete');
+                profileTitle.textContent = `👋 Bonjour ${userData.profile.name || 'Utilisateur'}`;
+                profileSubtitle.textContent = `Profil configuré - ${userData.dailyPoints} points/jour`;
+                profileStats.style.display = 'block';
+            }
+        }
+
+        function saveProfile() {
+            const mode = userData.calculationMode || 'auto';
+            
+            if (mode === 'auto') {
+                const name = document.getElementById('userName').value;
+                const age = parseInt(document.getElementById('userAge').value);
+                const gender = document.getElementById('userGender').value;
+                const height = parseInt(document.getElementById('userHeight').value);
+                const weight = parseFloat(document.getElementById('currentWeight').value);
+                const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+                const activityLevel = parseFloat(document.getElementById('activityLevel').value);
+                const weightLossGoal = parseFloat(document.getElementById('weightLossGoal').value);
+                
+                if (!name || !age || !gender || !height || !weight || !targetWeight || !activityLevel || !weightLossGoal) {
+                    showToast('⚠️ Remplir tous les champs');
+                    return;
+                }
+                
+                if (!userData.profile || !userData.dailyPoints) {
+                    showToast('⚠️ Calculs non effectués');
+                    return;
+                }
+                
+                saveData();
+                updateDisplay();
+                showToast('✅ Profil sauvegardé !');
+                updateProfileStatus();
+                
+            } else if (mode === 'manual') {
+                const manualPoints = parseInt(document.getElementById('manualPoints').value);
+                
+                if (!manualPoints || manualPoints < 20 || manualPoints > 50) {
+                    showToast('⚠️ Points 20-50');
+                    return;
+                }
+                
+                userData.dailyPoints = manualPoints;
+                userData.calculationMode = 'manual';
+                saveData();
+                updateDisplay();
+                showToast('✅ Profil sauvegardé !');
+                updateProfileStatus();
+            } else {
+                showToast('⚠️ Choisir un mode');
+            }
+        }
+
+        function loadProfileData() {
+            if (userData.calculationMode === 'manual') {
+                toggleCalculationMode('manual');
+                document.getElementById('manualPoints').value = userData.dailyPoints || '';
+            }
+            
+            if (userData.profile) {
+                const p = userData.profile;
+                document.getElementById('userName').value = p.name || '';
+                document.getElementById('userAge').value = p.age || '';
+                document.getElementById('userGender').value = p.gender || '';
+                document.getElementById('userHeight').value = p.height || '';
+                document.getElementById('currentWeight').value = p.weight || '';
+                document.getElementById('targetWeight').value = p.targetWeight || '';
+                document.getElementById('activityLevel').value = p.activityLevel || '';
+                document.getElementById('weightLossGoal').value = p.weightLossGoal || '';
+                
+                calculatePoints();
+            }
+        }
+
+        // Food management
+        function renderFoodGrid() {
+        const foodGrid = document.getElementById('foodGrid');
+         const searchTerm = document.getElementById('foodSearch').value.toLowerCase();
+    
+        let filteredFoods = foodDatabase.filter(food => {
+        const matchesSearch = food.name.toLowerCase().includes(searchTerm);
+        const matchesCategory = currentCategory === 'all' || food.category === currentCategory;
+        return matchesSearch && matchesCategory;
+        });
+
+        foodGrid.innerHTML = filteredFoods.map(food => {
+        let pointsClass = 'food-points';
+        if (food.points === 0) {
+            pointsClass += ' points-zero';
+        } else if (food.points >=10) {
+            pointsClass += ' points-high';
+        }
+
+        return `
+            <div class="food-item">
+                <div class="food-icon">${food.icon}</div>
+                <div class="food-info">
+                    <div class="food-name">${food.name}</div>
+                    <div class="food-category">${food.category}</div>
+                </div>
+                <div class="${pointsClass}">${food.points} pts</div>
+                <button class="btn btn-add" onclick="showPortionModal('${food.name.replace(/'/g, "\\'")}', ${food.points}, '${food.icon}')">+</button>
+            </div>
+        `;
+        }).join('');
+        }
+
+        function filterFoods() {
+            renderFoodGrid();
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderFoodGrid();
+        }
+
+        function addFood(name, points, icon) {
+            const existingFood = consumedFoods.find(food => food.name === name);
+            
+            if (existingFood) {
+                existingFood.quantity += 1;
+                existingFood.totalPoints = existingFood.quantity * existingFood.points;
+            } else {
+                consumedFoods.push({
+                    name: name,
+                    points: points,
+                    quantity: 1,
+                    totalPoints: points,
+                    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                    icon: icon || '🍽️'
+                });
+            }
+            
+            updateDisplay();
+            saveData();
+            showToast(`✅ Ajouté: ${name} (+${points} pts)`);
+        }
+
+function showPortionModal(name, points, icon) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;';
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem;">${name}</h3>
+            <p style="margin-bottom: 15px; font-size: 0.85rem; color: #636e72;">Points de base : <strong>${points} pts</strong></p>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">Quantité :</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+    
+                    <input type="number" id="portionQuantity" value="1" min="0.1" step="0.1" style="width: 100%; height: 50px; padding: 0 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1.3rem; text-align: center; font-weight: bold;">
+                </div>
+                <small style="color: #636e72; font-size: 0.75rem; display: block; margin-top: 5px;">
+                    0.5 = demi-portion, 2 = double portion
+                </small>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; color: white;">
+                <div style="font-size: 0.8rem; opacity: 0.9;">Total des points :</div>
+                <div style="font-size: 2rem; font-weight: bold; margin-top: 5px;" id="portionTotalPoints">${points}</div>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <button onclick="addFoodWithPortion('${name.replace(/'/g, "\\'")}', ${points}, '${icon}')" style="flex: 1; padding: 14px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;">✅ Ajouter</button>
+                <button onclick="closePortionModal()" style="flex: 1; padding: 14px; background: #e9ecef; color: #2d3436; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;">Annuler</button>
+            </div>
+        </div>
+    `;
+    
+    modal.id = 'portionModal';
+    document.body.appendChild(modal);
+    
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    document.getElementById('portionQuantity').addEventListener('input', function() {
+        updatePortionTotal(points);
+    });
+}
+
+function updatePortionTotal(basePoints) {
+    const quantity = parseFloat(document.getElementById('portionQuantity').value) || 1;
+    const total = Math.round(basePoints * quantity * 10) / 10;
+    document.getElementById('portionTotalPoints').textContent = total;
+}
+
+function addFoodWithPortion(name, basePoints, icon) {
+    const quantity = parseFloat(document.getElementById('portionQuantity').value) || 1;
+    const totalPoints = Math.round(basePoints * quantity * 10) / 10;
+    
+    closePortionModal();
+    
+    const displayName = quantity !== 1 ? `${name} (x${quantity})` : name;
+    
+    consumedFoods.push({
+        name: displayName,
+        points: totalPoints,
+        quantity: 1,
+        totalPoints: totalPoints,
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        icon: icon || '🍽️'
+    });
+    
+    updateDisplay();
+    saveData();
+    showToast(`✅ ${displayName} - ${totalPoints} pts`);
+}
+
+function closePortionModal() {
+    const modal = document.getElementById('portionModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = ''; // Restore body scroll
+    }
+}
+
+function showCustomFoodModal() {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;';
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">➕ Aliment personnalisé</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem;">Nom de l'aliment :</label>
+                <input type="text" id="customFoodName" placeholder="Ex: Sandwich maison" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem;">Nombre de points :</label>
+                <input type="number" id="customFoodPoints" placeholder="Ex: 8" min="0" step="0.5" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem;">
+                <small style="color: #636e72; font-size: 0.75rem; display: block; margin-top: 5px;">
+                    💡 Astuce : 1 point ≈ 80 calories
+                </small>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem;">Emoji (optionnel) :</label>
+                <input type="text" id="customFoodIcon" placeholder="🍽️" maxlength="2" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1.5rem; text-align: center;">
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <button onclick="addCustomFood()" style="flex: 1; padding: 14px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;">✅ Ajouter</button>
+                <button onclick="closeCustomFoodModal()" style="flex: 1; padding: 14px; background: #e9ecef; color: #2d3436; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;">Annuler</button>
+            </div>
+        </div>
+    `;
+    
+    modal.id = 'customFoodModal';
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCustomFoodModal() {
+    const modal = document.getElementById('customFoodModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function addCustomFood() {
+    const name = document.getElementById('customFoodName').value.trim();
+    const points = parseFloat(document.getElementById('customFoodPoints').value);
+    const icon = document.getElementById('customFoodIcon').value.trim() || '🍽️';
+    
+    if (!name) {
+        showToast('⚠️ Veuillez entrer un nom');
+        return;
+    }
+    
+    if (!points || points < 0) {
+        showToast('⚠️ Veuillez entrer un nombre de points valide');
+        return;
+    }
+    
+    closeCustomFoodModal();
+    
+    consumedFoods.push({
+        name: name,
+        points: points,
+        quantity: 1,
+        totalPoints: points,
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        icon: icon
+    });
+    
+    updateDisplay();
+    saveData();
+    showToast(`✅ ${name} - ${points} pts`);
+}
+
+function closeCustomFoodModal() {
+    const modal = document.getElementById('customFoodModal');
+    if (modal) modal.remove();
+}
+
+        function removeFood(index) {
+            const food = consumedFoods[index];
+            if (food.quantity > 1) {
+                food.quantity -= 1;
+                food.totalPoints = food.quantity * food.points;
+            } else {
+                consumedFoods.splice(index, 1);
+            }
+            
+            updateDisplay();
+            saveData();
+            showToast(`❌ Retiré: ${food.name}`);
+        }
+
+        // Activity management
+        function calculateCumulativeCaloriesPoints() {
+            return Math.floor(totalCalories / 80);
+        }
+        
+        function calculateCumulativeStepsPoints() {
+            return Math.floor(totalSteps / 2000);
+        }
+
+        function updateCaloriesPoints() {
+            const calories = parseInt(document.getElementById('caloriesInput').value) || 0;
+            document.getElementById('caloriesPoints').textContent = Math.floor(calories / 80);
+        }
+
+        function updateStepsPoints() {
+            const steps = parseInt(document.getElementById('stepsInput').value) || 0;
+            document.getElementById('stepsPoints').textContent = Math.floor(steps / 2000);
+        }
+
+        function addCaloriesActivity() {
+            const calories = parseInt(document.getElementById('caloriesInput').value);
+            if (!calories || calories <= 0) {
+                showToast('⚠️ Veuillez entrer un nombre de calories valide');
+                return;
+            }
+
+            const pointsBefore = calculateCumulativeCaloriesPoints();
+            totalCalories += calories;
+            const pointsAfter = calculateCumulativeCaloriesPoints();
+            const pointsGained = pointsAfter - pointsBefore;
+
+            activities.push({
+                type: 'calories',
+                value: calories,
+                points: pointsGained,
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            document.getElementById('caloriesInput').value = '';
+            updateCaloriesPoints();
+            updateCumulativeDisplays();
+            updateActivityDisplay();
+            updateDisplay();
+            saveData();
+            
+            if (pointsGained > 0) {
+                showToast(`🔥 Activité ajoutée: ${calories} calories (+${pointsGained} pts)`);
+            } else {
+                showToast(`🔥 Calories ajoutées: ${calories} (pas assez pour un point supplémentaire)`);
+            }
+        }
+
+        function addStepsActivity() {
+            const steps = parseInt(document.getElementById('stepsInput').value);
+            if (!steps || steps <= 0) {
+                showToast('⚠️ Veuillez entrer un nombre de pas valide');
+                return;
+            }
+
+            const pointsBefore = calculateCumulativeStepsPoints();
+            totalSteps += steps;
+            const pointsAfter = calculateCumulativeStepsPoints();
+            const pointsGained = pointsAfter - pointsBefore;
+
+            activities.push({
+                type: 'steps',
+                value: steps,
+                points: pointsGained,
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            document.getElementById('stepsInput').value = '';
+            updateStepsPoints();
+            updateCumulativeDisplays();
+            updateActivityDisplay();
+            updateDisplay();
+            saveData();
+            
+            if (pointsGained > 0) {
+                showToast(`🚶‍♂️ Activité ajoutée: ${steps.toLocaleString()} pas (+${pointsGained} pts)`);
+            } else {
+                showToast(`🚶‍♂️ Pas ajoutés: ${steps.toLocaleString()} (pas assez pour un point supplémentaire)`);
+            }
+        }
+
+        function updateCumulativeDisplays() {
+            const totalCaloriesPoints = calculateCumulativeCaloriesPoints();
+            const totalStepsPointsCalc = calculateCumulativeStepsPoints();
+            
+            document.getElementById('totalCaloriesDisplay').textContent = totalCalories.toLocaleString();
+            document.getElementById('totalCaloriesPoints').textContent = totalCaloriesPoints;
+            document.getElementById('totalStepsDisplay').textContent = totalSteps.toLocaleString();
+            document.getElementById('totalStepsPoints').textContent = totalStepsPointsCalc;
+        }
+
+        function removeActivity(index) {
+            const activity = activities[index];
+            
+            if (activity.type === 'calories') {
+                totalCalories -= activity.value;
+            } else {
+                totalSteps -= activity.value;
+            }
+            
+            activities.splice(index, 1);
+            recalculateAllActivityPoints();
+            
+            updateCumulativeDisplays();
+            updateActivityDisplay();
+            updateDisplay();
+            saveData();
+        }
+
+        function recalculateAllActivityPoints() {
+            let tempCalories = 0;
+            let tempSteps = 0;
+            
+            activities.forEach(activity => {
+                if (activity.type === 'calories') {
+                    const pointsBefore = Math.floor(tempCalories / 80);
+                    tempCalories += activity.value;
+                    const pointsAfter = Math.floor(tempCalories / 80);
+                    activity.points = pointsAfter - pointsBefore;
+                } else {
+                    const pointsBefore = Math.floor(tempSteps / 2000);
+                    tempSteps += activity.value;
+                    const pointsAfter = Math.floor(tempSteps / 2000);
+                    activity.points = pointsAfter - pointsBefore;
+                }
+            });
+        }
+
+        function updateActivityDisplay() {
+            const activitiesSection = document.getElementById('activitiesSection');
+            const activitiesList = document.getElementById('activitiesList');
+            
+            if (activities.length === 0) {
+                activitiesSection.style.display = 'none';
+                return;
+            }
+
+            activitiesSection.style.display = 'block';
+            activitiesList.innerHTML = activities.map((activity, index) => `
+                <div class="consumed-item">
+                    <div style="font-size: 1.2rem;">${activity.type === 'calories' ? '🔥' : '🚶‍♂️'}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">
+                            ${activity.type === 'calories' ? 
+                                `${activity.value} calories` : 
+                                `${activity.value.toLocaleString()} pas`
+                            }
+                        </div>
+                        <div style="font-size: 0.75rem; color: #636e72;">${activity.time}</div>
+                    </div>
+                    <div style="font-weight: bold; color: #56ab2f; margin-right: 8px;">
+                        ${activity.points > 0 ? `+${activity.points}` : '0'}
+                    </div>
+                    <button class="btn btn-remove" onclick="removeActivity(${index})">-</button>
+                </div>
+            `).join('');
+
+            const totalActivityPoints = activities.reduce((sum, activity) => sum + activity.points, 0);
+            document.getElementById('totalActivityPoints').textContent = totalActivityPoints;
+        }
+
+        // History management
+        function getWeekDates(weekOffset = 0) {
+            const today = new Date();
+            const currentDay = today.getDay();
+            const monday = new Date(today);
+            
+            monday.setDate(today.getDate() - currentDay + 1);
+            monday.setDate(monday.getDate() + (weekOffset * 7));
+            
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(date);
+            }
+            
+            return dates;
+        }
+
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function changeWeek(direction) {
+            currentWeekOffset += direction;
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const weekDates = getWeekDates(currentWeekOffset);
+            const today = new Date();
+            const todayKey = getDateKey(today);
+            
+            const firstDay = weekDates[0];
+            const lastDay = weekDates[6];
+            const weekDisplay = document.getElementById('currentWeekDisplay');
+            weekDisplay.textContent = `${firstDay.toLocaleDateString('fr-FR')} - ${lastDay.toLocaleDateString('fr-FR')}`;
+            
+            const dayCards = document.getElementById('dayCards');
+            const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+            
+            dayCards.innerHTML = weekDates.map((date, index) => {
+                const dateKey = getDateKey(date);
+                const isToday = dateKey === todayKey;
+                const dayData = historyData[dateKey] || null;
+                const hasData = dayData !== null;
+                
+                let totalConsumed = 0;
+                let totalActivity = 0;
+                let dailyPointsUsed = userData.dailyPoints || 25;
+                let savedPoints = 0;
+                let cheatPoints = 0;
+                
+                if (hasData) {
+                    totalConsumed = dayData.consumedFoods?.reduce((sum, food) => sum + food.totalPoints, 0) || 0;
+                    totalActivity = dayData.activities?.reduce((sum, activity) => sum + activity.points, 0) || 0;
+                    dailyPointsUsed = dayData.dailyPoints || userData.dailyPoints || 25;
+                    savedPoints = dayData.savedPoints || 0;
+                    cheatPoints = dayData.usedWeeklyPoints || 0;
+                }
+                
+                if (isToday) {
+                    totalConsumed = consumedFoods.reduce((sum, food) => sum + food.totalPoints, 0);
+                    totalActivity = activities.reduce((sum, activity) => sum + activity.points, 0);
+                    dailyPointsUsed = userData.dailyPoints || 25;
+                    savedPoints = 0;
+                    cheatPoints = usedWeeklyPoints;
+                }
+                
+                const totalAvailable = dailyPointsUsed + totalActivity + cheatPoints;
+                const remaining = totalAvailable - totalConsumed;
+                
+                return `
+                    <div class="day-card ${isToday ? 'today' : ''} ${!hasData && !isToday ? 'no-data' : ''}" 
+                         onclick="toggleDayDetails('${dateKey}')">
+                        <div class="day-header">
+                            <div class="day-name">${dayNames[index]}</div>
+                            <div class="day-date">${date.toLocaleDateString('fr-FR')}</div>
+                        </div>
+                        
+                        <div class="day-summary">
+                            <div class="summary-item">
+                                <div class="summary-value">${totalConsumed}</div>
+                                <div class="summary-label">Consommé</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">+${totalActivity}</div>
+                                <div class="summary-label">Sport</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" style="color: ${remaining >= 0 ? '#56ab2f' : '#e53e3e'}">${remaining}</div>
+                                <div class="summary-label">Restant</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" style="color: #f39c12">${cheatPoints}</div>
+                                <div class="summary-label">Écarts</div>
+                            </div>
+                        </div>
+                        
+                        ${hasData || isToday ? `
+                            <div class="day-details" id="details-${dateKey}">
+                                ${generateDayDetails(dateKey, isToday)}
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 10px; color: #636e72; font-size: 0.8rem;">
+                                Aucune donnée disponible
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateDayDetails(dateKey, isToday) {
+            let dayData;
+            
+            if (isToday) {
+                dayData = {
+                    consumedFoods: consumedFoods,
+                    activities: activities,
+                    dailyPoints: userData.dailyPoints || 25,
+                    usedWeeklyPoints: usedWeeklyPoints
+                };
+            } else {
+                dayData = historyData[dateKey];
+            }
+            
+            if (!dayData) return '<div style="text-align: center; padding: 10px;">Aucune donnée</div>';
+            
+            let html = '';
+            
+            if (dayData.consumedFoods && dayData.consumedFoods.length > 0) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">🍽️ Aliments consommés</div>
+                        <div class="detail-list">
+                            ${dayData.consumedFoods.map(food => `
+                                <div class="detail-item">
+                                    <span>${food.icon || '🍽️'} ${food.name} ${food.quantity > 1 ? `(x${food.quantity})` : ''}</span>
+                                    <span>${food.totalPoints} pts</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (dayData.activities && dayData.activities.length > 0) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">🏃‍♂️ Activités</div>
+                        <div class="detail-list">
+                            ${dayData.activities.map(activity => `
+                                <div class="detail-item">
+                                    <span>${activity.type === 'calories' ? '🔥' : '🚶‍♂️'} ${activity.type === 'calories' ? 
+                                        `${activity.value} calories` : 
+                                        `${activity.value.toLocaleString()} pas`
+                                    }</span>
+                                    <span>+${activity.points} pts</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (dayData.usedWeeklyPoints && dayData.usedWeeklyPoints > 0) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-title">🍕 Points écarts utilisés</div>
+                        <div class="detail-list">
+                            <div class="detail-item">
+                                <span>Points écarts bonus</span>
+                                <span>+${dayData.usedWeeklyPoints} pts</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (!html) {
+                html = '<div style="text-align: center; padding: 10px; color: #636e72;">Aucune activité enregistrée</div>';
+            }
+            
+            return html;
+        }
+
+        function toggleDayDetails(dateKey) {
+            const details = document.getElementById(`details-${dateKey}`);
+            if (details) {
+                details.classList.toggle('expanded');
+            }
+        }
+
+        // Display management
+        function updateDisplay() {
+            const dailyPoints = userData.dailyPoints || 25;
+            const totalConsumed = consumedFoods.reduce((sum, food) => sum + food.totalPoints, 0);
+            const totalActivity = activities.reduce((sum, activity) => sum + activity.points, 0);
+            const totalAvailable = dailyPoints + totalActivity + usedWeeklyPoints;
+            const remaining = totalAvailable - totalConsumed;
+            const progressPercentage = Math.min((totalConsumed / totalAvailable) * 100, 100);
+
+            document.getElementById('dailyPointsDisplay').textContent = `${totalConsumed} / ${totalAvailable}`;
+            document.getElementById('remainingPointsDisplay').textContent = remaining;
+            document.getElementById('basePointsDisplay').textContent = dailyPoints;
+            document.getElementById('activityPointsDisplay').textContent = totalActivity;
+            document.getElementById('cheatPointsDisplay').textContent = usedWeeklyPoints;
+            document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+
+            updateConsumedFoodsDisplay();
+            updateActivityDisplay();
+            updateCumulativeDisplays();
+        }
+
+        function updateConsumedFoodsDisplay() {
+            const consumedSection = document.getElementById('consumedSection');
+            const consumedFoods_div = document.getElementById('consumedFoods');
+            const totalPointsConsumed = document.getElementById('totalPointsConsumed');
+            
+            if (consumedFoods.length === 0) {
+                consumedSection.style.display = 'none';
+                return;
+            }
+
+            consumedSection.style.display = 'block';
+            consumedFoods_div.innerHTML = consumedFoods.map((food, index) => `
+                <div class="consumed-item">
+                    <div style="font-size: 1.2rem;">${food.icon || '🍽️'}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">
+                            ${food.name} ${food.quantity > 1 ? `(x${food.quantity})` : ''}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #636e72;">${food.time}</div>
+                    </div>
+                    <div style="font-weight: bold; color: #667eea; margin-right: 8px;">${food.totalPoints}</div>
+                    <button class="btn btn-remove" onclick="removeFood(${index})">-</button>
+                </div>
+            `).join('');
+
+            const total = consumedFoods.reduce((sum, food) => sum + food.totalPoints, 0);
+            totalPointsConsumed.textContent = total;
+        }
+
+        // Utility functions
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Reset function
+        function resetAllData() {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir effacer toutes les données ?')) {
+                // Clear localStorage
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(BACKUP_KEY);
+                
+                // Reset variables
+                initializeDefaultData();
+                
+                // Clear form fields
+                document.getElementById('userName').value = '';
+                document.getElementById('userAge').value = '';
+                document.getElementById('userGender').value = '';
+                document.getElementById('userHeight').value = '';
+                document.getElementById('currentWeight').value = '';
+                document.getElementById('targetWeight').value = '';
+                document.getElementById('activityLevel').value = '';
+                document.getElementById('weightLossGoal').value = '';
+                document.getElementById('manualPoints').value = '';
+                document.getElementById('foodSearch').value = '';
+                
+                // Reset displays
+                document.getElementById('calculationResults').style.display = 'none';
+                document.getElementById('profileStats').style.display = 'none';
+                document.getElementById('profileStatus').classList.remove('profile-complete');
+                document.getElementById('profileTitle').textContent = '🎯 Configuration de votre profil';
+                document.getElementById('profileSubtitle').textContent = 'Personnalisez vos points selon votre métabolisme';
+                document.getElementById('genderRangeInfo').style.display = 'none';
+                
+                toggleCalculationMode('auto');
+                updateDisplay();
+                updateWeeklyPointsDisplay();
+                renderFoodGrid();
+                updateHistoryDisplay();
+                
+                showToast('🗑️ Toutes les données ont été effacées');
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveData, 30000);
+
+        // Save before page unload
+        window.addEventListener('beforeunload', function() {
+            saveData();
+        });
+
+        // Save when page becomes hidden (mobile app switching)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                saveData();
+            }
+        });
+
+        // Save when app loses focus
+        window.addEventListener('blur', function() {
+            saveData();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + R for reset (hidden feature)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
+                e.preventDefault();
+                resetAllData();
+            }
+            
+            // Escape to clear search
+            if (e.key === 'Escape') {
+                document.getElementById('foodSearch').value = '';
+                filterFoods();
+            }
+        });
+
+        // Touch and interaction improvements
+        document.addEventListener('touchstart', function() {}, { passive: true });
+        
+        // Prevent zoom on double tap for better mobile experience
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        console.log('🏋️‍♀️ Antomani Weight App with localStorage persistence loaded successfully!');
+    </script>
+</body>
+</html
