@@ -2245,14 +2245,16 @@
 
 
         // Weekly Points Management
+
         function getCurrentWeekKey() {
-            const now = new Date();
-            const monday = new Date(now);
-            const dayOfWeek = now.getDay();
-            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-            monday.setDate(now.getDate() - daysFromMonday);
-            return monday.toISOString().split('T')[0];
-        }
+    const now = new Date();
+    const monday = new Date(now);
+    const dayOfWeek = now.getDay();
+    const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    monday.setDate(now.getDate() - daysFromMonday);
+    monday.setHours(0, 0, 0, 0); // ✅ AJOUT : Réinitialiser l'heure
+    return monday.toISOString().split('T')[0];
+}
 
         function getNextMondayDate() {
             const now = new Date();
@@ -2264,15 +2266,24 @@
         }
 
         function checkWeeklyReset() {
-            const newWeekKey = getCurrentWeekKey();
-            if (currentWeekKey && currentWeekKey !== newWeekKey) {
-                // CORRECTION: Reset only weekly extra points, preserve all history
-                weeklyExtraPoints = 0;
-                showToast('📅 Nouvelle semaine ! Points écarts remis à zéro.');
-                console.log('Weekly reset: extra points reset, history preserved');
-            }
-            currentWeekKey = newWeekKey;
+    const newWeekKey = getCurrentWeekKey();
+    
+    // ✅ Ne reset que si c'est vraiment une nouvelle semaine (lundi)
+    if (currentWeekKey && currentWeekKey !== newWeekKey) {
+        const oldWeekDate = new Date(currentWeekKey);
+        const newWeekDate = new Date(newWeekKey);
+        
+        // Vérifier qu'au moins 7 jours se sont écoulés
+        const daysDiff = Math.floor((newWeekDate - oldWeekDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff >= 7) {
+            weeklyExtraPoints = 0;
+            showToast('📅 Nouvelle semaine ! Points écarts remis à zéro.');
+            console.log('Weekly reset: extra points reset, history preserved');
         }
+    }
+    currentWeekKey = newWeekKey;
+}
 
         function saveRemainingPoints() {
     const dailyPoints = userData.dailyPoints || 25;
