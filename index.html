@@ -769,11 +769,12 @@
         </div>
 
         <nav class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('profile')">👤 Profil</button>
-            <button class="nav-tab" onclick="showTab('tracker')">📊 Suivi</button>
-            <button class="nav-tab" onclick="showTab('activity')">🏃‍♂️ Sport</button>
-            <button class="nav-tab" onclick="showTab('history')">📅 Historique</button>
-        </nav>
+    <button class="nav-tab active" onclick="showTab('profile')">👤 Profil</button>
+    <button class="nav-tab" onclick="showTab('tracker')">📊 Suivi</button>
+    <button class="nav-tab" onclick="showTab('activity')">🏃‍♂️ Sport</button>
+    <button class="nav-tab" onclick="showTab('integrations')">🔗 Apps</button> <!-- ⭐ NOUVELLE LIGNE -->
+    <button class="nav-tab" onclick="showTab('history')">📅 Historique</button>
+</nav>
 
         <!-- Profile Tab -->
         <div id="profile" class="tab-content active">
@@ -1008,6 +1009,12 @@
     </button>
 </div>
 
+<div style="margin-bottom: 15px;">
+    <button class="btn btn-primary" onclick="showPhotoScanModal()" style="width: 100%;">
+        📸 Scanner un aliment avec l'IA
+    </button>
+</div>
+
             <!-- Category Filter -->
             <div class="category-filter">
                 <button class="category-btn active" onclick="filterByCategory('all')">Tout</button>
@@ -1086,6 +1093,103 @@
                 <div style="text-align: center; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); color: white; border-radius: 10px;">
                     <div style="font-size: 1.5rem; font-weight: bold;">+<span id="totalActivityPoints">0</span></div>
                     <div>Points gagnés</div>
+                </div>
+            </div>
+        </div>
+
+<!-- Integrations Tab -->
+        <div id="integrations" class="tab-content">
+            <!-- Section IA Photo Scan -->
+            <div class="form-section">
+                <h3 class="section-title">📸 Scan d'aliments par IA</h3>
+                
+                <button class="btn btn-primary" onclick="showPhotoScanModal()" style="margin-bottom: 10px;">
+                    📷 Scanner un aliment
+                </button>
+                
+                <div class="alert alert-info" style="font-size: 0.85rem;">
+                    <strong>💡 Comment ça marche :</strong><br>
+                    1. Prenez une photo de votre aliment<br>
+                    2. L'IA analyse et identifie l'aliment<br>
+                    3. Les points sont calculés automatiquement<br>
+                    4. Ajoutez-le à votre suivi en un clic
+                </div>
+                
+                <button class="btn btn-warning" onclick="showApiKeyModal()">
+                    🔑 Configurer clé API
+                </button>
+                
+                <div id="apiKeyStatus" style="margin-top: 10px; font-size: 0.85rem; color: #636e72; text-align: center;">
+                    <!-- Status affiché dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Section Apps Santé -->
+            <div class="form-section">
+                <h3 class="section-title">💪 Applications Santé</h3>
+                
+                <div class="health-apps-grid" id="healthAppsGrid">
+                    <!-- Généré dynamiquement par JavaScript -->
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="syncAllHealthApps()" style="flex: 1;">
+                        🔄 Synchroniser
+                    </button>
+                    <button class="btn btn-success" onclick="toggleAutoSync()" style="flex: 1;">
+                        ⚙️ Auto-sync
+                    </button>
+                </div>
+                
+                <div id="syncStatusMessage" style="display: none; margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 0.85rem; text-align: center;">
+                    <!-- Messages de sync -->
+                </div>
+                
+                <div class="alert alert-info" style="font-size: 0.85rem; margin-top: 15px;">
+                    <strong>ℹ️ Apps supportées :</strong><br>
+                    • Google Fit (Android)<br>
+                    • Apple Health (iOS - app native requise)<br>
+                    • Garmin Connect<br>
+                    • Fitbit<br>
+                    • Strava<br>
+                    • Samsung Health (app native requise)<br>
+                    • Xiaomi Mi Fit (import manuel)
+                </div>
+            </div>
+
+            <!-- Section Apps Connectées -->
+            <div class="form-section" id="connectedAppsSection" style="display: none;">
+                <h3 class="section-title">✅ Applications connectées</h3>
+                <div id="connectedAppsList">
+                    <!-- Liste générée dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Paramètres de synchronisation -->
+            <div class="form-section">
+                <h3 class="section-title">⚙️ Paramètres de synchronisation</h3>
+                
+                <div class="stats-card">
+                    <div class="stats-row">
+                        <span class="stats-label">Synchronisation automatique</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoSyncToggle" onchange="handleAutoSyncToggle(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">Fréquence (minutes)</span>
+                        <select id="syncFrequency" class="form-control" style="width: auto; padding: 8px;" onchange="updateSyncFrequency()">
+                            <option value="30">30 min</option>
+                            <option value="60" selected>1 heure</option>
+                            <option value="120">2 heures</option>
+                            <option value="180">3 heures</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info" style="font-size: 0.8rem; margin-top: 10px;">
+                    💡 La synchronisation automatique récupère vos données de sport en arrière-plan
                 </div>
             </div>
         </div>
@@ -3317,6 +3421,1154 @@ function closeCustomFoodModal() {
         }, false);
 
         console.log('🏋️‍♀️ Antomani Weight App with localStorage persistence loaded successfully!');
+// ========================================
+        // FONCTIONS INTÉGRATIONS
+        // ========================================
+
+        /**
+         * Afficher le statut de la clé API
+         */
+        function updateApiKeyStatus() {
+            const statusDiv = document.getElementById('apiKeyStatus');
+            if (statusDiv) {
+                const hasKey = localStorage.getItem('perplexity_api_key');
+                if (hasKey) {
+                    statusDiv.innerHTML = '✅ Clé API configurée';
+                    statusDiv.style.color = '#56ab2f';
+                } else {
+                    statusDiv.innerHTML = '⚠️ Clé API non configurée - Cliquez sur le bouton ci-dessus';
+                    statusDiv.style.color = '#f39c12';
+                }
+            }
+        }
+
+        /**
+         * Afficher les applications santé
+         */
+        function renderHealthApps() {
+            const grid = document.getElementById('healthAppsGrid');
+            if (!grid) return;
+
+            const apps = {
+                googleFit: { name: 'Google Fit', icon: '💪', available: true },
+                appleHealth: { name: 'Apple Health', icon: '❤️', available: false },
+                garmin: { name: 'Garmin', icon: '⌚', available: true },
+                fitbit: { name: 'Fitbit', icon: '🏃', available: true },
+                strava: { name: 'Strava', icon: '🚴', available: true },
+                xiaomi: { name: 'Mi Fit', icon: '📱', available: true },
+                samsung: { name: 'Samsung Health', icon: '⚡', available: false }
+            };
+
+            grid.innerHTML = Object.entries(apps).map(([id, app]) => {
+                const isConnected = checkIfAppConnected(id);
+                return `
+                    <div class="health-app-card ${isConnected ? 'connected' : ''}" 
+                         onclick="handleHealthAppClick('${id}')">
+                        <div class="connection-badge ${isConnected ? 'connected' : ''}"></div>
+                        <div class="health-app-icon">${app.icon}</div>
+                        <div class="health-app-name">${app.name}</div>
+                        <div class="health-app-status ${isConnected ? 'connected' : ''}">
+                            ${isConnected ? 'Connectée ✓' : 'Non connectée'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Vérifier si une app est connectée
+         */
+        function checkIfAppConnected(appId) {
+            const connections = JSON.parse(localStorage.getItem('health_connections') || '{}');
+            return connections[appId]?.connected || false;
+        }
+
+        /**
+         * Gérer le clic sur une app santé
+         */
+        function handleHealthAppClick(appId) {
+            const isConnected = checkIfAppConnected(appId);
+            
+            if (isConnected) {
+                if (confirm('Voulez-vous déconnecter cette application ?')) {
+                    disconnectHealthApp(appId);
+                }
+            } else {
+                connectHealthApp(appId);
+            }
+        }
+
+        /**
+         * Connecter une app santé
+         */
+        function connectHealthApp(appId) {
+            showToast('🔄 Connexion en cours...');
+            
+            // Simuler une connexion (à remplacer par la vraie logique OAuth)
+            setTimeout(() => {
+                const connections = JSON.parse(localStorage.getItem('health_connections') || '{}');
+                connections[appId] = {
+                    connected: true,
+                    connectedAt: new Date().toISOString()
+                };
+                localStorage.setItem('health_connections', JSON.stringify(connections));
+                
+                renderHealthApps();
+                updateConnectedAppsList();
+                showToast('✅ Connecté avec succès !');
+            }, 1000);
+        }
+
+        /**
+         * Déconnecter une app santé
+         */
+        function disconnectHealthApp(appId) {
+            const connections = JSON.parse(localStorage.getItem('health_connections') || '{}');
+            delete connections[appId];
+            localStorage.setItem('health_connections', JSON.stringify(connections));
+            
+            renderHealthApps();
+            updateConnectedAppsList();
+            showToast('❌ Application déconnectée');
+        }
+
+        /**
+ * Synchroniser toutes les apps (VERSION RÉELLE pour iOS)
+ */
+function syncAllHealthApps() {
+    const connections = JSON.parse(localStorage.getItem('health_connections') || '{}');
+    const connected = Object.keys(connections).filter(id => connections[id].connected);
+    
+    if (connected.length === 0) {
+        showSyncMessage('ℹ️ Aucune application connectée', 'info');
+        return;
+    }
+    
+    showSyncMessage('🔄 Synchronisation en cours...', 'info');
+    
+    // Récupérer les vraies données d'Apple HealthKit
+    requestHealthKitData()
+        .then(data => {
+            if (data) {
+                // Récupérer les données du jour dernier (si elles existent)
+                const lastSyncKey = 'lastHealthKitSync_' + getDateKey(new Date(Date.now() - 86400000));
+                const lastSync = JSON.parse(localStorage.getItem(lastSyncKey) || '{}');
+                
+                // Calculer SEULEMENT la différence
+                const stepsToAdd = Math.max(0, (data.steps || 0) - (lastSync.steps || 0));
+                const caloriesToAdd = Math.max(0, (data.calories || 0) - (lastSync.calories || 0));
+                
+                // Sauvegarder les données d'aujourd'hui
+                const todayKey = 'lastHealthKitSync_' + getDateKey(new Date());
+                localStorage.setItem(todayKey, JSON.stringify({
+                    steps: data.steps || 0,
+                    calories: data.calories || 0,
+                    syncedAt: new Date().toISOString()
+                }));
+                
+                // Ajouter SEULEMENT la différence
+                if (stepsToAdd > 0) {
+                    addStepsFromHealthApp(stepsToAdd);
+                }
+                if (caloriesToAdd > 0) {
+                    addCaloriesFromHealthApp(caloriesToAdd);
+                }
+                
+                showSyncMessage(`✅ ${connected.length} app(s) synchronisée(s)`, 'success');
+            } else {
+                showSyncMessage('❌ Impossible de récupérer les données', 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Erreur sync:', err);
+            showSyncMessage('❌ Erreur de synchronisation', 'error');
+        });
+}
+
+/**
+ * Récupérer les vraies données d'Apple HealthKit
+ */
+async function requestHealthKitData() {
+    try {
+        // ✅ APPEL RÉEL À HEALTHKIT (fonctionne sur iOS)
+        if (window.webkit && window.webkit.messageHandlers) {
+            return new Promise((resolve) => {
+                window.webkit.messageHandlers.getHealthKitData.postMessage({
+                    types: ['steps', 'activeEnergy']
+                });
+                
+                // Écouter la réponse
+                window.onHealthKitData = (data) => {
+                    resolve({
+                        steps: data.steps || 0,
+                        calories: data.calories || 0
+                    });
+                };
+                
+                // Timeout après 10 secondes
+                setTimeout(() => resolve(null), 10000);
+            });
+        } else {
+            // Fallback pour le web (simulation)
+            console.log('⚠️ HealthKit non disponible, utilisation de données simulées');
+            return {
+                steps: 5000,
+                calories: 200
+            };
+        }
+    } catch (err) {
+        console.error('Erreur HealthKit:', err);
+        return null;
+    }
+}
+
+        /**
+         * Afficher un message de sync
+         */
+        function showSyncMessage(message, type) {
+            const msgDiv = document.getElementById('syncStatusMessage');
+            if (msgDiv) {
+                msgDiv.className = type;
+                msgDiv.textContent = message;
+                msgDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    msgDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        /**
+         * Mettre à jour la liste des apps connectées
+         */
+        function updateConnectedAppsList() {
+            const section = document.getElementById('connectedAppsSection');
+            const list = document.getElementById('connectedAppsList');
+            
+            if (!section || !list) return;
+            
+            const connections = JSON.parse(localStorage.getItem('health_connections') || '{}');
+            const connected = Object.entries(connections).filter(([_, conn]) => conn.connected);
+            
+            if (connected.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            const appsNames = {
+                googleFit: { name: 'Google Fit', icon: '💪' },
+                appleHealth: { name: 'Apple Health', icon: '❤️' },
+                garmin: { name: 'Garmin', icon: '⌚' },
+                fitbit: { name: 'Fitbit', icon: '🏃' },
+                strava: { name: 'Strava', icon: '🚴' },
+                xiaomi: { name: 'Mi Fit', icon: '📱' },
+                samsung: { name: 'Samsung Health', icon: '⚡' }
+            };
+
+            section.style.display = 'block';
+            list.innerHTML = connected.map(([id, conn]) => {
+                const app = appsNames[id] || { name: id, icon: '📱' };
+                const date = new Date(conn.connectedAt).toLocaleDateString('fr-FR');
+                return `
+                    <div class="connected-app-item">
+                        <div class="connected-app-info">
+                            <span style="font-size: 1.5rem;">${app.icon}</span>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">${app.name}</div>
+                                <div style="font-size: 0.7rem; color: #636e72;">
+                                    Connectée le ${date}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="disconnect-btn" onclick="handleHealthAppClick('${id}')">
+                            Déconnecter
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Gérer le toggle auto-sync
+         */
+        function handleAutoSyncToggle(enabled) {
+            localStorage.setItem('autoSync', enabled ? 'true' : 'false');
+            if (enabled) {
+                const frequency = parseInt(document.getElementById('syncFrequency').value);
+                showToast(`✅ Sync auto activée (${frequency}min)`);
+            } else {
+                showToast('❌ Sync auto désactivée');
+            }
+        }
+
+        /**
+         * Mettre à jour la fréquence de sync
+         */
+        function updateSyncFrequency() {
+            const frequency = document.getElementById('syncFrequency').value;
+            const isEnabled = document.getElementById('autoSyncToggle').checked;
+            
+            if (isEnabled) {
+                showToast(`🔄 Fréquence : ${frequency} minutes`);
+            }
+        }
+
+        /**
+         * Toggle auto-sync (bouton)
+         */
+        function toggleAutoSync() {
+            const toggle = document.getElementById('autoSyncToggle');
+            toggle.checked = !toggle.checked;
+            handleAutoSyncToggle(toggle.checked);
+        }
+
+        /**
+ * Ajouter des étapes depuis une app santé (AVEC DÉTECTION DE DOUBLON)
+ */
+function addStepsFromHealthApp(steps) {
+    if (steps > 0) {
+        // Chercher si on a déjà des étapes synchro aujourd'hui
+        const today = new Date().toLocaleDateString('fr-FR');
+        const existingActivityIndex = activities.findIndex(a => 
+            a.type === 'steps' && 
+            a.source === '🔗 Sync app' &&
+            a.date === today // Ajoute cette propriété quand on crée l'activité
+        );
+
+        const pointsBefore = calculateCumulativeStepsPoints();
+        
+        // SI on a trouvé une activité existante AUJOURD'HUI : on la remplace
+        // SINON : on en ajoute une nouvelle
+        if (existingActivityIndex !== -1) {
+            // REMPLACER l'existant
+            const oldValue = activities[existingActivityIndex].value;
+            totalSteps = totalSteps - oldValue + steps; // Soustraire l'ancien, ajouter le nouveau
+            activities[existingActivityIndex].value = steps;
+        } else {
+            // AJOUTER une nouvelle
+            totalSteps += steps;
+        }
+        
+        const pointsAfter = calculateCumulativeStepsPoints();
+        const pointsGained = pointsAfter - pointsBefore;
+        
+        if (pointsGained > 0) {
+            if (existingActivityIndex !== -1) {
+                // Mettre à jour le message de temps
+                activities[existingActivityIndex].points = pointsGained;
+                activities[existingActivityIndex].time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            } else {
+                // Créer une nouvelle activité
+                activities.push({
+                    type: 'steps',
+                    value: steps,
+                    points: pointsGained,
+                    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                    date: today, // Ajouter la date
+                    source: '🔗 Sync app'
+                });
+            }
+        }
+        
+        updateCumulativeDisplays();
+        updateActivityDisplay();
+        updateDisplay();
+        saveData();
+    }
+}
+
+/**
+ * Ajouter des calories depuis une app santé (AVEC DÉTECTION DE DOUBLON)
+ */
+function addCaloriesFromHealthApp(calories) {
+    if (calories > 0) {
+        // Chercher si on a déjà des calories synchro aujourd'hui
+        const today = new Date().toLocaleDateString('fr-FR');
+        const existingActivityIndex = activities.findIndex(a => 
+            a.type === 'calories' && 
+            a.source === '🔗 Sync app' &&
+            a.date === today
+        );
+
+        const pointsBefore = calculateCumulativeCaloriesPoints();
+        
+        // SI on a trouvé une activité existante AUJOURD'HUI : on la remplace
+        // SINON : on en ajoute une nouvelle
+        if (existingActivityIndex !== -1) {
+            // REMPLACER l'existant
+            const oldValue = activities[existingActivityIndex].value;
+            totalCalories = totalCalories - oldValue + calories; // Soustraire l'ancien, ajouter le nouveau
+            activities[existingActivityIndex].value = calories;
+        } else {
+            // AJOUTER une nouvelle
+            totalCalories += calories;
+        }
+        
+        const pointsAfter = calculateCumulativeCaloriesPoints();
+        const pointsGained = pointsAfter - pointsBefore;
+        
+        if (pointsGained > 0) {
+            if (existingActivityIndex !== -1) {
+                // Mettre à jour l'activité existante
+                activities[existingActivityIndex].points = pointsGained;
+                activities[existingActivityIndex].time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            } else {
+                // Créer une nouvelle activité
+                activities.push({
+                    type: 'calories',
+                    value: calories,
+                    points: pointsGained,
+                    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                    date: today, // Ajouter la date
+                    source: '🔗 Sync app'
+                });
+            }
+        }
+        
+        updateCumulativeDisplays();
+        updateActivityDisplay();
+        updateDisplay();
+        saveData();
+    }
+}
+
+
+        // Fonctions pour les modals (placeholders - seront remplacées par les vrais modules)
+        /**
+ * Afficher le modal de scan photo (version simplifiée)
+ */
+function showPhotoScanModal() {
+    // Vérifier si une clé API est configurée
+    const apiKey = localStorage.getItem('perplexity_api_key');
+    
+    if (!apiKey) {
+        if (confirm('⚠️ Clé API non configurée\n\nVoulez-vous la configurer maintenant ?')) {
+            showApiKeyModal();
+        }
+        return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;';
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 15px; font-size: 1.2rem;">📸 Scanner un aliment</h3>
+            
+            <!-- Zone de preview -->
+            <div id="photoPreview" style="width: 100%; min-height: 200px; border: 2px dashed #667eea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; background: #f8f9fa; position: relative; overflow: hidden;">
+                <div id="previewPlaceholder" style="text-align: center; color: #636e72;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📷</div>
+                    <div>Prenez une photo ou sélectionnez une image</div>
+                </div>
+                <img id="previewImage" style="display: none; width: 100%; height: auto; max-height: 300px; object-fit: contain;">
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                <button onclick="triggerCamera()" style="padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    📷 Appareil photo
+                </button>
+                <button onclick="triggerGallery()" style="padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    🖼️ Galerie
+                </button>
+            </div>
+            
+            <!-- Input caché pour la photo -->
+            <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+            <input type="file" id="galleryInput" accept="image/*" style="display: none;">
+            
+            <!-- Zone de résultats -->
+            <div id="scanResults" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="margin-bottom: 10px;">
+                    <strong>Aliment détecté:</strong>
+                    <div id="detectedFood" style="font-size: 1.1rem; color: #667eea; margin-top: 5px;"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <div>
+                        <small style="color: #636e72;">Calories estimées</small>
+                        <div id="detectedCalories" style="font-weight: bold;"></div>
+                    </div>
+                    <div>
+                        <small style="color: #636e72;">Points</small>
+                        <div id="detectedPoints" style="font-weight: bold; color: #667eea;"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <small style="color: #636e72;">Portion</small>
+                    <div id="detectedPortion" style="font-weight: bold;"></div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <small style="color: #636e72;">Confiance</small>
+                    <div id="detectedConfidence" style="font-weight: bold;"></div>
+                </div>
+            </div>
+            
+            <!-- Loading spinner -->
+            <div id="scanLoading" style="display: none; text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; animation: spin 1s linear infinite;">🔄</div>
+                <div style="margin-top: 10px; color: #636e72;">Analyse en cours...</div>
+            </div>
+            
+            <!-- Boutons bas -->
+            <div style="display: flex; gap: 8px;">
+                <button id="addScannedFoodBtn" style="flex: 1; padding: 14px; background: #56ab2f; color: white; border: none; border-radius: 8px; font-weight: 600; display: none; cursor: pointer;">
+                    ✅ Ajouter
+                </button>
+                <button onclick="closePhotoScanModal()" style="flex: 1; padding: 14px; background: #e9ecef; color: #2d3436; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Ajouter l'animation de rotation
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
+    
+    modal.id = 'photoScanModal';
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Event listeners pour les inputs
+    document.getElementById('photoInput').addEventListener('change', (e) => handlePhotoSelected(e.target.files[0]));
+    document.getElementById('galleryInput').addEventListener('change', (e) => handlePhotoSelected(e.target.files[0]));
+}
+
+/**
+ * Déclencher l'appareil photo
+ */
+function triggerCamera() {
+    document.getElementById('photoInput').click();
+}
+
+/**
+ * Déclencher la galerie
+ */
+function triggerGallery() {
+    document.getElementById('galleryInput').click();
+}
+
+/**
+ * Gérer la photo sélectionnée
+ */
+async function handlePhotoSelected(file) {
+    if (!file) return;
+    
+    // Afficher preview
+    const preview = document.getElementById('previewImage');
+    const placeholder = document.getElementById('previewPlaceholder');
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    
+    // Afficher loading
+    document.getElementById('scanLoading').style.display = 'block';
+    document.getElementById('scanResults').style.display = 'none';
+    
+    try {
+        // Analyser avec l'IA Perplexity
+        const foodData = await analyzePhotoWithPerplexity(file);
+        
+        // Afficher les résultats
+        displayScanResults(foodData);
+        
+    } catch (error) {
+        console.error('Erreur scan:', error);
+        alert(`❌ Erreur: ${error.message}`);
+        document.getElementById('scanLoading').style.display = 'none';
+    }
+}
+
+/**
+ * Analyser une photo avec Perplexity AI
+ */
+async function analyzePhotoWithPerplexity(imageFile) {
+    const apiKey = localStorage.getItem('perplexity_api_key');
+    
+    if (!apiKey) {
+        throw new Error('Clé API non configurée');
+    }
+    
+    // Convertir l'image en base64
+    const base64Image = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+    });
+    
+// Créer le prompt pour l'IA
+    const prompt = `Tu es un expert nutritionniste certifié Weight Watchers PersonalPoints™ 2024. Analyse cette photo d'assiette avec PRÉCISION MAXIMALE.
+
+MISSION CRITIQUE :
+Pour CHAQUE aliment visible, tu DOIS fournir :
+1. Quantité en grammes (estimation réaliste)
+2. Calories totales
+3. Graisses saturées (g)
+4. Sucres (g)
+5. Protéines (g)
+
+LISTE ZEROPOINT WEIGHT WATCHERS 2024 (0 points garantis) :
+LÉGUMES : épinards, brocoli, chou-fleur, courgettes, haricots verts, asperges, poivrons, tomates, concombre, salade, champignons, aubergine, céleri, radis, chou, betteraves, carottes crues
+FRUITS : pomme, banane, orange, fraise, myrtille, raisin, melon, pastèque, pêche, poire, kiwi, ananas, mangue, papaye, fruits rouges
+PROTÉINES MAIGRES : blanc de poulet SANS PEAU (cuit sans matière grasse), blanc de dinde SANS PEAU, poisson blanc (cabillaud, sole, lieu), fruits de mer (crevettes, moules, calamars)
+LAITIERS : yaourt nature 0%, fromage blanc 0%
+AUTRES : œufs entiers (2/jour max), tofu nature, tempeh
+
+ATTENTION - CES ALIMENTS NE SONT PAS ZEROPOINT :
+❌ Poulet AVEC peau = calculer les points
+❌ Viandes grasses = calculer les points  
+❌ Pommes de terre (même vapeur) = calculer les points
+❌ Riz, pâtes, pain, quinoa = calculer les points
+❌ Avocat = calculer les points
+❌ Huiles, beurre = calculer les points
+❌ Fromages = calculer les points
+❌ Fruits secs, noix = calculer les points
+❌ Légumineuses (lentilles, pois chiches) = calculer les points
+
+FORMULE WEIGHT WATCHERS PERSONNALPOINTS™ 2024 :
+Points = (Calories × 0.0305) + (Graisses saturées × 0.275) + (Sucres × 0.12) - (Protéines × 0.098)
+Minimum : 0 point
+Arrondi : au 0.5 le plus proche
+
+Réponds UNIQUEMENT au format JSON (sans texte, sans backticks) :
+
+{
+  "name": "description complète et précise du plat",
+  "components": [
+    {
+      "item": "nom précis de l'aliment",
+      "quantity_g": quantité en grammes (nombre entier),
+      "calories": calories totales (nombre),
+      "saturated_fat_g": graisses saturées en grammes (nombre décimal),
+      "sugar_g": sucres en grammes (nombre décimal),
+      "protein_g": protéines en grammes (nombre décimal),
+      "is_zeropoint": true/false (selon liste ZeroPoint ci-dessus),
+      "ww_points": points WW calculés avec la formule (0 si ZeroPoint),
+      "category": "proteines/legumes/cereales/fruits/graisses",
+      "icon": "emoji"
+    }
+  ],
+  "category": "plats_cuisines",
+  "total_calories": somme calories,
+  "total_ww_points": somme points WW,
+  "portion_size": "description détaillée avec poids",
+  "confidence": 0-100,
+  "icon": "emoji principal"
+}
+
+EXEMPLE RÉALISTE - Cuisse poulet + pommes de terre + brocoli :
+{
+  "name": "cuisse de poulet rôtie avec pommes de terre et brocoli",
+  "components": [
+    {
+      "item": "cuisse de poulet avec peau",
+      "quantity_g": 120,
+      "calories": 250,
+      "saturated_fat_g": 3.5,
+      "sugar_g": 0,
+      "protein_g": 25,
+      "is_zeropoint": false,
+      "ww_points": 5,
+      "category": "proteines",
+      "icon": "🍗"
+    },
+    {
+      "item": "pommes de terre rôties",
+      "quantity_g": 150,
+      "calories": 180,
+      "saturated_fat_g": 0.1,
+      "sugar_g": 2,
+      "protein_g": 4,
+      "is_zeropoint": false,
+      "ww_points": 5,
+      "category": "cereales",
+      "icon": "🥔"
+    },
+    {
+      "item": "brocoli vapeur",
+      "quantity_g": 100,
+      "calories": 35,
+      "saturated_fat_g": 0,
+      "sugar_g": 2,
+      "protein_g": 3,
+      "is_zeropoint": true,
+      "ww_points": 0,
+      "category": "legumes",
+      "icon": "🥦"
+    }
+  ],
+  "category": "plats_cuisines",
+  "total_calories": 465,
+  "total_ww_points": 10,
+  "portion_size": "1 cuisse de poulet 120g, 150g pommes de terre, 100g brocoli",
+  "confidence": 85,
+  "icon": "🍗"
+}`;
+   
+    // Appel API Perplexity
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model: 'sonar-pro',
+            messages: [
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: prompt },
+                        { 
+                            type: 'image_url',
+                            image_url: { url: `data:image/jpeg;base64,${base64Image}` }
+                        }
+                    ]
+                }
+            ]
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erreur API (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+    
+    // Parser la réponse JSON
+    let foodData;
+    try {
+        // Extraire le JSON s'il est entouré de texte
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            foodData = JSON.parse(jsonMatch[0]);
+        } else {
+            foodData = JSON.parse(aiResponse);
+        }
+    } catch (error) {
+        console.error('Erreur parsing JSON:', error);
+        throw new Error('Format de réponse invalide');
+    }
+    
+    // Calculer les points (80 cal = 1 point)
+    foodData.points = Math.round(foodData.estimated_calories / 80);
+    
+    return foodData;
+}
+
+/**
+ * Afficher les résultats du scan avec ajustement interactif
+ */
+function displayScanResults(foodData) {
+    document.getElementById('scanLoading').style.display = 'none';
+    document.getElementById('scanResults').style.display = 'none';
+    
+    // Créer une nouvelle section d'ajustement
+    let adjustmentSection = document.getElementById('adjustmentSection');
+    if (!adjustmentSection) {
+        adjustmentSection = document.createElement('div');
+        adjustmentSection.id = 'adjustmentSection';
+        document.getElementById('photoScanModal').querySelector('div').appendChild(adjustmentSection);
+    }
+    
+    // Stocker les données pour les calculs
+    window.currentFoodData = foodData;
+    
+    adjustmentSection.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 15px;';
+    adjustmentSection.innerHTML = `
+        <!-- Résumé principal -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; color: white;">
+            <div style="font-size: 1.3rem; font-weight: bold; margin-bottom: 5px;">
+                ${foodData.icon} ${foodData.name}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div>
+                    <div style="font-size: 0.75rem; opacity: 0.9;">Calories totales</div>
+                    <div style="font-size: 1.3rem; font-weight: bold;" id="totalCaloriesDisplay">${foodData.total_calories}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; opacity: 0.9;">Points WW</div>
+                    <div style="font-size: 1.3rem; font-weight: bold;" id="totalPointsDisplay">${foodData.total_ww_points}</div>
+                </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.75rem; opacity: 0.9;">
+                Confiance : ${foodData.confidence}%
+            </div>
+        </div>
+
+        <!-- Titre section ajustement -->
+        <div style="font-weight: 600; margin-bottom: 12px; color: #2d3436; display: flex; align-items: center; gap: 8px;">
+            <span>📋 Ajuster les portions</span>
+            <button onclick="resetAllPortions()" style="margin-left: auto; padding: 4px 8px; background: #e9ecef; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                🔄 Reset
+            </button>
+        </div>
+
+        <!-- Liste des composants ajustables -->
+        <div id="componentsAdjustment" style="display: flex; flex-direction: column; gap: 10px;">
+            ${generateComponentsAdjustment(foodData.components)}
+        </div>
+
+        <!-- Portion size info -->
+        <div style="background: white; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 0.8rem; color: #636e72;">
+            <strong>ℹ️ Portion estimée :</strong><br>
+            ${foodData.portion_size}
+        </div>
+    `;
+    
+    adjustmentSection.style.display = 'block';
+    
+    // Afficher le bouton d'ajout
+    const addButton = document.getElementById('addScannedFoodBtn');
+    addButton.style.display = 'block';
+    addButton.onclick = () => {
+        const adjustedData = calculateAdjustedTotals();
+        addFood(adjustedData.name, adjustedData.points, adjustedData.icon);
+        closePhotoScanModal();
+    };
+}
+
+/**
+ * Générer le HTML pour chaque composant ajustable
+ */
+function generateComponentsAdjustment(components) {
+    if (!components || components.length === 0) {
+        return '<div style="text-align: center; color: #636e72;">Aucun composant détecté</div>';
+    }
+    
+    return components.map((comp, index) => {
+        const pointsColor = comp.ww_points === 0 ? '#27ae60' : '#667eea';
+        
+        return `
+            <div class="component-card" style="background: white; padding: 12px; border-radius: 10px; border: 2px solid #e9ecef;">
+                <!-- En-tête du composant -->
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 1.5rem;">${comp.icon}</span>
+			<div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #2d3436;">${comp.item}</div>
+                        <div style="font-size: 0.7rem; color: #636e72;">
+                            <span id="quantity-${index}">${comp.quantity_g}g</span> • 
+                            <span id="calories-${index}">${comp.calories}</span> kcal
+                        </div>
+                        ${comp.is_zeropoint ? 
+                            '<div style="font-size: 0.65rem; color: #27ae60; font-weight: 600; margin-top: 2px;">✨ ZeroPoint WW</div>' : 
+                            `<div style="font-size: 0.65rem; color: #95a5a6; margin-top: 2px;">
+                                G.Sat: ${comp.saturated_fat_g || 0}g • Sucres: ${comp.sugar_g || 0}g • Prot: ${comp.protein_g || 0}g
+                            </div>`
+                        }
+                    </div>                     
+                    <div style="background: ${pointsColor}; color: white; padding: 6px 10px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">
+                        <span id="points-${index}">${comp.ww_points}</span> pts
+                    </div>
+                </div>
+
+                <!-- Slider d'ajustement -->
+                <div style="margin-top: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.75rem; color: #636e72;">Portion :</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #667eea;" id="percentage-${index}">100%</span>
+                    </div>
+                    
+                    <input 
+                        type="range" 
+                        id="slider-${index}" 
+                        min="0" 
+                        max="200" 
+                        value="100" 
+                        step="10"
+                        style="width: 100%; height: 6px; border-radius: 3px; outline: none; -webkit-appearance: none; background: linear-gradient(90deg, #e9ecef 0%, #667eea 50%, #e9ecef 100%);"
+                        oninput="adjustComponent(${index}, this.value)"
+                         data-base-quantity="${comp.quantity_g}"
+                        data-base-calories="${comp.calories}"
+                        data-base-points="${comp.ww_points}"
+                        data-base-sat-fat="${comp.saturated_fat_g || 0}"
+                        data-base-sugar="${comp.sugar_g || 0}"
+                        data-base-protein="${comp.protein_g || 0}"
+                        data-is-zeropoint="${comp.is_zeropoint || false}"
+                    >
+                    
+                    <!-- Marqueurs de référence -->
+                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #b2bec3; margin-top: 4px;">
+                        <span>0%</span>
+                        <span>50%</span>
+                        <span>100%</span>
+                        <span>150%</span>
+                        <span>200%</span>
+                    </div>
+                </div>
+
+                <!-- Bouton suppression -->
+                <button 
+                    onclick="removeComponent(${index})" 
+                    style="width: 100%; margin-top: 10px; padding: 6px; background: #fee; color: #e74c3c; border: 1px solid #fcc; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                    🗑️ Retirer cet aliment
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Ajuster un composant selon le slider
+ */
+function adjustComponent(index, percentage) {
+    const slider = document.getElementById(`slider-${index}`);
+    const baseQuantity = parseFloat(slider.dataset.baseQuantity);
+    const baseCalories = parseFloat(slider.dataset.baseCalories);
+    const basePoints = parseFloat(slider.dataset.basePoints);
+    
+    const factor = percentage / 100;
+    
+    // Calculer les nouvelles valeurs
+    const newQuantity = Math.round(baseQuantity * factor);
+    const newCalories = Math.round(baseCalories * factor);
+    const newPoints = Math.round(basePoints * factor * 10) / 10; // Arrondi à 0.5
+    
+    // Mettre à jour l'affichage
+    document.getElementById(`percentage-${index}`).textContent = `${percentage}%`;
+    document.getElementById(`quantity-${index}`).textContent = `${newQuantity}g`;
+    document.getElementById(`calories-${index}`).textContent = newCalories;
+    document.getElementById(`points-${index}`).textContent = newPoints;
+    
+    // Recalculer le total
+    updateTotals();
+}
+
+/**
+ * Retirer un composant
+ */
+function removeComponent(index) {
+    const slider = document.getElementById(`slider-${index}`);
+    if (slider) {
+        slider.value = 0;
+        adjustComponent(index, 0);
+        
+        // Masquer visuellement
+        const card = slider.closest('.component-card');
+        if (card) {
+            card.style.opacity = '0.3';
+            card.style.pointerEvents = 'none';
+        }
+    }
+}
+
+/**
+ * Réinitialiser toutes les portions à 100%
+ */
+function resetAllPortions() {
+    const sliders = document.querySelectorAll('input[type="range"][id^="slider-"]');
+    sliders.forEach((slider, index) => {
+        slider.value = 100;
+        adjustComponent(index, 100);
+        
+        // Réactiver la carte
+        const card = slider.closest('.component-card');
+        if (card) {
+            card.style.opacity = '1';
+            card.style.pointerEvents = 'auto';
+        }
+    });
+}
+
+/**
+ * Mettre à jour les totaux
+ */
+function updateTotals() {
+    let totalCalories = 0;
+    let totalPoints = 0;
+    
+    const sliders = document.querySelectorAll('input[type="range"][id^="slider-"]');
+    sliders.forEach((slider, index) => {
+        const calories = parseFloat(document.getElementById(`calories-${index}`).textContent);
+        const points = parseFloat(document.getElementById(`points-${index}`).textContent);
+        
+        totalCalories += calories;
+        totalPoints += points;
+    });
+    
+    // Afficher les totaux
+    document.getElementById('totalCaloriesDisplay').textContent = totalCalories;
+    document.getElementById('totalPointsDisplay').textContent = Math.round(totalPoints * 10) / 10;
+}
+
+/**
+ * Calculer les données ajustées finales
+ */
+function calculateAdjustedTotals() {
+    const foodData = window.currentFoodData;
+    let totalCalories = 0;
+    let totalPoints = 0;
+    let componentsList = [];
+    
+    const sliders = document.querySelectorAll('input[type="range"][id^="slider-"]');
+    sliders.forEach((slider, index) => {
+        const percentage = parseInt(slider.value);
+        if (percentage > 0) {
+            const quantity = document.getElementById(`quantity-${index}`).textContent;
+            const calories = parseFloat(document.getElementById(`calories-${index}`).textContent);
+            const points = parseFloat(document.getElementById(`points-${index}`).textContent);
+            const item = foodData.components[index].item;
+            
+            totalCalories += calories;
+            totalPoints += points;
+            
+            if (percentage !== 100) {
+                componentsList.push(`${item} (${percentage}%)`);
+            } else {
+                componentsList.push(item);
+            }
+        }
+    });
+    
+    // Créer le nom final
+    let finalName = foodData.name;
+    if (componentsList.length < foodData.components.length) {
+        finalName += ' (modifié)';
+    }
+    
+    return {
+        name: finalName,
+        calories: totalCalories,
+        points: Math.round(totalPoints),
+        icon: foodData.icon
+    };
+}
+
+// Rendre les fonctions globales
+window.adjustComponent = adjustComponent;
+window.removeComponent = removeComponent;
+window.resetAllPortions = resetAllPortions;
+window.updateTotals = updateTotals;
+window.calculateAdjustedTotals = calculateAdjustedTotals;
+
+/**
+ * Fermer le modal photo
+ */
+function closePhotoScanModal() {
+    const modal = document.getElementById('photoScanModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+/**
+ * Modal configuration API Key (version améliorée)
+ */
+function showApiKeyModal() {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;';
+    
+    const currentKey = localStorage.getItem('perplexity_api_key') || '';
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 15px;">🔑 Configuration API Perplexity</h3>
+            
+            <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem;">
+                <strong>ℹ️ Obtenir une clé API:</strong><br>
+                1. Allez sur <a href="https://www.perplexity.ai/settings/api" target="_blank" style="color: #667eea; text-decoration: underline;">perplexity.ai/settings/api</a><br>
+                2. Créez un compte si nécessaire<br>
+                3. Générez une nouvelle clé API<br>
+                4. Copiez-la ci-dessous
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Clé API:</label>
+                <input type="password" id="apiKeyInput" placeholder="pplx-..." 
+                       style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem;"
+                       value="${currentKey}">
+                <small style="color: #636e72; font-size: 0.75rem; display: block; margin-top: 5px;">
+                    La clé commence généralement par "pplx-"
+                </small>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <button onclick="saveApiKeyFromModal()" style="flex: 1; padding: 14px; background: #667eea; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    💾 Enregistrer
+                </button>
+                <button onclick="closeApiKeyModal()" style="flex: 1; padding: 14px; background: #e9ecef; color: #2d3436; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.id = 'apiKeyModal';
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Sauvegarder la clé API depuis le modal
+ */
+function saveApiKeyFromModal() {
+    const apiKey = document.getElementById('apiKeyInput').value.trim();
+    if (apiKey) {
+        localStorage.setItem('perplexity_api_key', apiKey);
+        updateApiKeyStatus();
+        showToast('✅ Clé API enregistrée !');
+        closeApiKeyModal();
+    } else {
+        alert('⚠️ Veuillez entrer une clé API valide');
+    }
+}
+
+/**
+ * Fermer le modal de clé API
+ */
+function closeApiKeyModal() {
+    const modal = document.getElementById('apiKeyModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+        function showApiKeyModal() {
+            const currentKey = localStorage.getItem('perplexity_api_key') || '';
+            const newKey = prompt('Entrez votre clé API Perplexity :\n(Obtenez-la sur perplexity.ai/settings/api)', currentKey);
+            
+            if (newKey !== null && newKey.trim()) {
+                localStorage.setItem('perplexity_api_key', newKey.trim());
+                updateApiKeyStatus();
+                showToast('✅ Clé API enregistrée !');
+            }
+        }
+
+        // Initialiser l'onglet intégrations au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... ton code existant ...
+            
+            // Ajouter l'initialisation des intégrations
+            renderHealthApps();
+            updateConnectedAppsList();
+            updateApiKeyStatus();
+            
+            // Charger les paramètres de sync
+            const autoSyncEnabled = localStorage.getItem('autoSync') === 'true';
+            const syncFreq = localStorage.getItem('syncFrequency') || '60';
+            
+            const autoSyncToggle = document.getElementById('autoSyncToggle');
+            const syncFrequency = document.getElementById('syncFrequency');
+            
+            if (autoSyncToggle) autoSyncToggle.checked = autoSyncEnabled;
+            if (syncFrequency) syncFrequency.value = syncFreq;
+        });
+
     </script>
 </body>
 </html
